@@ -1,0 +1,83 @@
+{
+  "level": 73,
+  "mini": 26,
+  "blocks": [
+    {
+      "pos": {
+        "x": 2,
+        "y": 1
+      },
+      "blockType": "LARGE"
+    },
+    {
+      "pos": {
+        "x": 0,
+        "y": 0
+      },
+      "blockType": "WIDE_HORIZONTAL"
+    },
+    {
+      "pos": {
+        "x": 0,
+        "y": 1
+      },
+      "blockType": "WIDE_VERTICAL"
+    },
+    {
+      "pos": {
+        "x": 1,
+        "y": 1
+      },
+      "blockType": "SMALL"
+    },
+    {
+      "pos": {
+        "x": 1,
+        "y": 2
+      },
+      "blockType": "SMALL"
+    },
+    {
+      "pos": {
+        "x": 0,
+        "y": 3
+      },
+      "blockType": "WIDE_VERTICAL"
+    },
+    {
+      "pos": {
+        "x": 1,
+        "y": 3
+      },
+      "blockType": "SMALL"
+    },
+    {
+      "pos": {
+        "x": 2,
+        "y": 3
+      },
+      "blockType": "WIDE_VERTICAL"
+    },
+    {
+      "pos": {
+        "x": 3,
+        "y": 3
+      },
+      "blockType": "SMALL"
+    },
+    {
+      "pos": {
+        "x": 1,
+        "y": 4
+      },
+      "blockType": "SMALL"
+    },
+    {
+      "pos": {
+        "x": 3,
+        "y": 4
+      },
+      "blockType": "SMALL"
+    }
+  ]
+}
