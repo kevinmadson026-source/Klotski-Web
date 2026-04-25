@@ -1,5 +1,5 @@
 # 🧩 Giiker Super Slide - Klotski Solver & Game
-A EN/ES translation of this Readme file is available below.
+Eglish and Spanish translation of this Readme file is available below.
 
 Este projeto é uma implementação web completa do quebra-cabeça Giiker Super Slide (Klotski), permitindo jogar fases oficiais, criar desafios personalizados e utilizar um resolvedor automático.
 
