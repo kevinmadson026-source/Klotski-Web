@@ -4,6 +4,10 @@ Este projeto é uma implementação web completa do quebra-cabeça Giiker Super 
 
 ---
 
+<p align="center">
+  <img src="print.jpg" alt="Giiker Super Slide" width="500">
+</p>
+
 ## 🚀 Guia de Instalação e Execução
 
 ### 1. Instalação do Node.js
@@ -37,11 +41,11 @@ Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a port
 
 ### 🇺🇸 English
 A complete web implementation of the Giiker Super Slide. Includes 511 levels, custom puzzle builder, automatic solver, light/dark modes, and fullscreen support. 
-**To run:** Use `node server.js` or the provided `.bat` file.
+**To run:** Use `node server.js`
 
 ### 🇪🇸 Español
 Una implementación web completa de Giiker Super Slide. Incluye 511 niveles, creación de puzzles personalizados, solucionador automático, modo claro/oscuro y pantalla completa.
-**Para ejecutar:** Use `node server.js` o el archivo `.bat` proporcionado.
+**Para ejecutar:** Use `node server.js`
 
 ---
 
