@@ -20,7 +20,7 @@ Para rodar o servidor local, você precisa do Node.js instalado:
 Existem duas formas de iniciar o projeto:
 
 * **Pelo Terminal:** 1. Abra o prompt de comando (CMD) ou terminal na pasta do projeto.
-    2. Digite o comando: `node server.js`
+    2. Digite o comando: `node server.js` ou use o run.bat 
 
 Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a porta exibida no terminal).
 
@@ -41,11 +41,11 @@ Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a port
 
 ### 🇺🇸 English
 A complete web implementation of the Giiker Super Slide. Includes 511 levels, custom puzzle builder, automatic solver, light/dark modes, and fullscreen support. 
-**To run:** Use `node server.js`
+**To run:** Use `node server.js` or using run.bat
 
 ### 🇪🇸 Español
 Una implementación web completa de Giiker Super Slide. Incluye 511 niveles, creación de puzzles personalizados, solucionador automático, modo claro/oscuro y pantalla completa.
-**Para ejecutar:** Use `node server.js`
+**Para ejecutar:** Use `node server.js` o usando run.bat 
 
 ---
 
