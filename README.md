@@ -21,7 +21,7 @@ Para rodar o servidor local, você precisa do Node.js instalado:
 Existem duas formas de iniciar o projeto:
 
 * **Pelo Terminal:** 1. Abra o prompt de comando (CMD) ou terminal na pasta do projeto.
-    2. Digite o comando: `node server.js` ou use o run.bat 
+* 2. Digite o comando: `node server.js` ou use o run.bat 
 
 Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a porta exibida no terminal).
 
@@ -74,6 +74,6 @@ Una implementación web completa de Giiker Super Slide. Incluye 511 niveles, cre
 
 ---
 
-## 🛠️ Tecnologias
+## 🛠️ Tecnologias / Technologies
 * HTML5 / CSS3 / JavaScript (Vanilla)
 * Node.js (Servidor Backend)
