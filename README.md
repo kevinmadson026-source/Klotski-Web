@@ -76,6 +76,28 @@ After starting, open your browser and go to: `http://localhost:3000`
 Una implementación web completa de Giiker Super Slide. Incluye 511 niveles, creación de puzzles personalizados, solucionador automático, modo claro/oscuro y pantalla completa.
 **Para ejecutar:** Use `node server.js` o usando run.bat 
 
+### 🚀 Guia de Instalación y Ejecución
+
+#### 1. Instalación de Node.js
+Para ejecutar el servidor local, necesita tener instalado Node.js:
+1. Visite el sitio oficial: [nodejs.org](https://nodejs.org/).
+2. Descargue la versión **LTS**.
+3. Ejecute el instalador y siga los pasos estándar.
+
+#### 2. Cómo Ejecutar el Sitio
+* **Vía Terminal:** Abra el símbolo del sistema en la carpeta del proyecto y escriba: `node server.js`
+* **Usando run.bat:** Simplemente haga doble clic en el archivo `run.bat` que proporcioné en la carpeta raíz.
+
+Después de iniciar, abra su navegador y acceda a: `http://localhost:3000`
+
+### ✨ Características
+* **Selector de 511 Niveles:** Biblioteca con progresión de dificultad balanceada.
+* **Modo Personalizado:** Libertad para crear, jugar o resolver cualquier configuración.
+* **Solucionador Automático:** Algoritmo que muestra el paso a paso para la victoria.
+* **Modo Pantalla Completa:** Experiencia inmersiva en pantalla completa.
+* **Modo Claro/Oscuro:** Cambio dinámico de temas.
+* **Traducción Multi-idioma:** Disponible en Español, Inglés y Portugués.
+
 ---
 
 ## 🛠️ Tecnologias / Technologies
