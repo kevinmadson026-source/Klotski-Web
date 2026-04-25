@@ -28,9 +28,9 @@ Existem duas formas de iniciar o projeto:
 
 **Ou use o run.bat.**
 
-**Requerimentos / Requeriments**
+**Requerimentos**
 
-npm install express
+* npm install express
 
 Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a porta exibida no terminal).
 
@@ -61,6 +61,10 @@ To run the local server, you need Node.js installed:
 2. Download the **LTS** version.
 3. Run the installer and follow the standard steps.
 
+**Requirements**
+
+* npm install express
+
 #### 2. How to Run the Site
 * **Via Terminal:** Open the command prompt in the project folder and type: `node server.js`
 * **Using run.bat:** Simply double-click the `run.bat` file provided in the root folder.
@@ -88,6 +92,11 @@ Para ejecutar el servidor local, necesita tener instalado Node.js:
 1. Visite el sitio oficial: [nodejs.org](https://nodejs.org/).
 2. Descargue la versión **LTS**.
 3. Ejecute el instalador y siga los pasos estándar.
+
+
+**Requisitos**
+
+* npm install express
 
 #### 2. Cómo Ejecutar el Sitio
 * **Vía Terminal:** Abra el símbolo del sistema en la carpeta del proyecto y escriba: `node server.js`
