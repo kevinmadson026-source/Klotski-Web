@@ -12,6 +12,7 @@ teste agora / test now: https://klotski-web.onrender.com
 
 ## 🚀 Guia de Instalação e Execução
 
+
 ### 1. Instalação do Node.js
 Para rodar o servidor local, você precisa do Node.js instalado:
 1. Acesse o site oficial: [nodejs.org](https://nodejs.org/).
@@ -26,6 +27,10 @@ Existem duas formas de iniciar o projeto:
 * Digite o comando: `node server.js`
 
 **Ou use o run.bat.**
+
+**Requerimentos / Requeriments**
+
+npm install express
 
 Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a porta exibida no terminal).
 
