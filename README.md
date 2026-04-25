@@ -2,6 +2,7 @@
 
 Este projeto é uma implementação web completa do quebra-cabeça Giiker Super Slide (Klotski), permitindo jogar fases oficiais, criar desafios personalizados e utilizar um resolvedor automático.
 
+teste agora / test now: https://klotski-web.onrender.com
 ---
 
 <p align="center">
