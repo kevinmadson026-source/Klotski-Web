@@ -1,0 +1,4265 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giiker Super Slide</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      gap: 30px;
+      padding: 20px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      grid-template-rows: repeat(5, 60px);
+      gap: 2px;
+      background: #0000;
+      padding: 4px;
+      position: relative;
+      width: calc(4 * 60px + 3 * 2px + 8px);
+      height: calc(5 * 60px + 4 * 2px + 8px);
+      user-select: none;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: #eee;
+      border: 2px solid #ddd;
+    }
+    .piece {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      box-sizing: border-box;
+      border: 1px solid transparent;
+      outline: 1px solid black; /* contorno preto 2px para todas as peças */
+      transition: border-color 0.2s;
+      z-index: 10;
+    }
+    .piece.selected {
+      border-color: black;
+      outline-color: red; /* destaque quando selecionada */
+      z-index: 20;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+#pieces {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 10px 20px; /* vertical x horizontal */
+  user-select: none;
+  align-items: center;
+}
+    .select-piece {
+      cursor: pointer;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: border-color 0.2s, background-color 0.3s;
+      position: relative;
+      user-select: none;
+    }
+    .select-piece.selected {
+      border-color: black;
+	  outline: 5px solid black;
+    }
+    .select-piece.disabled {
+      background: #888 !important;
+      cursor: default;
+      pointer-events: none;
+      border-color: #555 !important;
+    }
+    .red-select {
+      background: red;
+      width: 122px;
+      height: 122px;
+    }
+    .blue-select {
+      background: lime;
+      width: 124px;
+      height: 62px;
+    }
+    .green-select {
+      background: blue;
+      width: 62px;
+      height: 124px;
+    }
+    .yellow-select {
+      background: yellow;
+      width: 62px;
+      height: 62px;
+    }
+    .piece.red {
+      width: 122px;
+      height: 122px;
+    }
+    .piece.blue {
+      width: 124px;
+      height: 62px;
+    }
+    .piece.green {
+      width: 62px;
+      height: 124px;
+    }
+    .piece.yellow {
+      width: 62px;
+      height: 62px;
+    }
+    .count-badge {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+      padding: 2px 7px;
+      font-size: 14px;
+      user-select: none;
+    }
+	
+.cell.highlight {
+  background-color: rgba(255, 0, 0, 0.4); /* vermelho com 30% de opacidade */
+}
+
+.select-piece.remove-select {
+  background: white;
+  border: 2px dashed red;
+  width: 62px;
+  height: 62px;
+  font-size: 24px;
+  color: red;
+  font-weight: bold;
+}
+
+.select-piece.remove-select::after {
+  content: "X";
+  position: absolute;
+}
+	
+	.game-area {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.pieces-and-info {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center; /* centraliza verticalmente os botões ao lado das peças */
+}
+
+#pieces {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  user-select: none;
+  margin-left: 120px;
+}
+
+.info-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-area button {
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background-color: #444;
+  color: white;
+}
+
+.info-area button:hover {
+  background-color: #666;
+}
+
+.info {
+  margin-top: 10px;
+  font-size: 16px;
+  background: #f3f3f3;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.board-wrapper {
+  transform: scale(1.5); /* Aumente conforme desejar (ex: 1.5 = 150%) */
+  transform-origin: top left; /* Mantém a mesma posição no canto */
+}
+
+.info-area button:hover {
+  background-color: #eee;
+  color: #111;
+  transform: translateY(-2px);
+}
+
+/* Input de tempo customizado */
+#input-timer-limit {
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 18px;
+  width: 80px;
+  text-align: center;
+}
+
+/* Classes para o Dark Mode */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+body.dark-mode .info {
+    background: #333;
+    border-color: #555;
+    color: #fff;
+}
+
+body.dark-mode #help-widget, 
+body.dark-mode #lang-menu {
+    background: #2d2d2d;
+    color: white;
+    border-color: #555;
+}
+
+/* Quando o body tiver a classe .dark-mode, altere os filhos: */
+
+/* Fundo do tabuleiro */
+body.dark-mode .board {
+    background: #2a2a2a; /* Cinza escuro para o container */
+}
+
+/* 2. Força a meta a continuar vermelha */
+
+/* 1. Células padrão (vazias) no Dark Mode */
+body.dark-mode .cell {
+    background: #333 !important;
+    border-color: #444 !important;
+}
+
+/* 2. Célula de destaque (Saída/Meta) no Dark Mode */
+/* Mantemos o vermelho para sinalizar o objetivo */
+body.dark-mode .cell.highlight {
+background: rgba(255, 0, 0, 0.5) !important; 
+    border-color: rgba(204, 0, 0, 0.6) !important;
+	opacity: 0.3; /* Deixa o elemento todo 50% transparente */
+}
+
+/* Ajuste opcional: se as peças tiverem sombras, podemos suavizar no dark mode */
+body.dark-mode .piece {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+
+/* --- Ajustes específicos para Dark Mode --- */
+
+/* 1. Input de tempo: texto branco e borda cinza para destacar no escuro */
+body.dark-mode #input-timer-limit {
+    color: white !important;
+    border-color: #555 !important;
+}
+
+/* 2. Classe de seleção e remoção com fundo preto */
+body.dark-mode .remove-select {
+    background-color: #1a1a1a !important;
+}
+
+/* 3. Seletor de fases (o container ou select) com fundo cinza escuro */
+/* Ajuste o ID ou Classe conforme o seu HTML, usei .seletor-fases baseado no seu texto */
+body.dark-mode .seletor-fases,
+body.dark-mode #seletor-fases {
+    background-color: #2a2a2a !important;
+    color: white !important;
+    border-color: #444;
+}
+
+/* Caso o "seletor-fases" seja um <select> (dropdown), precisamos mudar as <option> também */
+body.dark-mode .seletor-fases option {
+    background-color: #2a2a2a;
+    color: white;
+}
+
+body.dark-mode .mirror,
+body.dark-mode #mirror{
+	background-color: #2a2a2a !important;
+	border-color: transparent !important;
+}
+
+body.dark-mode #solution-viewer {
+    background-color: #2a2a2a !important;
+	
+}
+
+body.dark-mode #help-widget {
+    background-color: #2a2a2a !important;
+}
+
+/* Quando o tabuleiro tiver essa classe, as peças ficam foscas */
+.board.faded .piece {
+    opacity: 0.1;
+    transition: opacity 0.3s ease; /* Suaviza a mudança */
+    pointer-events: none; /* Opcional: impede mover peças com o help aberto */
+}
+
+#level-selector-container {
+  width: 480px;
+  min-width: 480px; /* Garante que não diminua */
+  flex-shrink: 0;    /* Impede que o flexbox o aperte */
+  height: 94vh;
+  background: #2a2a2a;
+  padding: 15px;
+  overflow-y: auto;
+  border-left: 2px solid #444;
+  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+}
+
+/* 1. Define a largura da barra vertical */
+#level-selector-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* 2. O "Track" é o fundo da barra (a parte que fica parada) */
+#level-selector-container::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Um tom mais escuro que o container */
+  border-radius: 10px;
+}
+
+/* 3. O "Thumb" é a parte que você arrasta (o cursor da barra) */
+#level-selector-container::-webkit-scrollbar-thumb {
+  background: #555; /* Cor da barrinha */
+  border-radius: 10px;
+  border: 2px solid #1e1e1e; /* Cria um espaçamento visual */
+}
+
+/* 4. Efeito ao passar o mouse na barrinha */
+#level-selector-container::-webkit-scrollbar-thumb:hover {
+  background: #007bff; /* Muda para azul (ou a cor do seu destaque) */
+}
+
+#level-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 2 colunas de miniaturas */
+  gap: 15px;
+}
+
+/* Item de Nível */
+.level-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.level-item:hover { transform: scale(1.05); }
+
+.mini-board {
+  width: 80px;  /* 4 colunas * 20px */
+  height: 100px; /* 5 linhas * 20px */
+  background: #1a1a1a;
+  position: relative;
+  border: 3px solid #444; /* Moldura do mini tabuleiro */
+  border-radius: 6px;
+  box-sizing: content-box; 
+  overflow: hidden; /* Garante que nada saia do limite */
+}
+
+.mini-piece {
+  position: absolute;
+  box-sizing: border-box; /* ESSENCIAL: Borda não aumenta o tamanho */
+  border: 1px solid rgba(0, 0, 0, 1); /* Linha fina divisória */
+  border-radius: 3px;
+  /* Efeito de brilho para parecer 3D */
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,0.2), 
+              inset -1px -1px 2px rgba(0,0,0,0.4);
+}
+
+.level-number {
+  color: #ccc;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Estilo para a miniatura selecionada */
+.level-item.selected-level .mini-board {
+  outline: 3px solid #007bff; /* Azul */
+  outline-offset: 0px;
+  border-color: #007bff;
+}
+
+/* Centraliza o layout em tela cheia (Modo Zen) */
+body.fullscreen-active {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: right !important;
+  align-items: center !important;
+  gap: 150px !important; /* Espaço entre o tabuleiro e o seletor de fases */
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  left: 20px !important;
+  overflow: hidden !important;
+}
+
+/* Oculta tudo na raiz do body, EXCETO os elementos listados */
+body.fullscreen-active > *:not(.game-area):not(.sidebar):not(#level-selector-container):not(.info-area):not(#help-widget):not([style*="position: fixed"]) {
+  display: none !important;
+}
+
+
+.piece, .cell {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0); /* Força renderização 3D para suavizar bordas */
+}
+
+/* Oculta outros menus dentro de game-area (como o seletor de peças original) */
+body.fullscreen-active .game-area > *:not(.controls) {
+  display: none !important;
+}
+
+/* Oculta os outros widgets de cronômetro e soluções, mantendo só o tabuleiro */
+body.fullscreen-active .controls > *:not(.board-wrapper) {
+  display: none !important;
+}
+
+/* Garante que o seletor de níveis use a altura total da tela cheia */
+body.fullscreen-active #level-selector-container {
+  height: 95vh !important;
+  border: 1px solid #444; 
+}
+
+/* Força o aumento do tabuleiro para 200% (substituindo o 1.5 original) */
+body.fullscreen-active .board-wrapper {
+  transform: scale(2.2) !important;
+  transform-origin: center !important;
+  margin-left: 25px !important;
+}
+
+body.fullscreen-active #btnSolve {
+    display: none !important;
+}
+
+body.fullscreen-active .sidebar {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 1300px !important; /* Comentário correto é assim */
+    top: 230px !important; /* O !important vem ANTES do ponto e vírgula */
+	transform: scale(0.90) !important;
+}
+
+body.fullscreen-active #top-widgets {
+    /* Remove o posicionamento fixo no canto da tela */
+    position: relative !important; 
+    
+    /* Garante que ele apareça na estrutura flex do body */
+    display: flex !important;
+    flex-direction: column; /* Mantém em coluna como você pediu antes */
+    gap: 10px;
+    
+    /* Ajusta a ordem para ele aparecer à esquerda ou antes do seletor */
+    order: 0; 
+    
+    /* Remove as margens fixas que usamos no modo normal */
+    padding: 10px;
+	left: -150px; 
+	margin-top: -550px !important;
+	z-index: 1000;
+
+}
+
+body.fullscreen-active .info-area{
+    /* Ajusta a ordem para ele aparecer à esquerda ou antes do seletor */
+    order: -1; 
+	margin-top: -130px;
+}
+
+/* Painel de Solução Fullscreen */
+#fs-solve-panel {
+    display: flex !important; /* Força a exibição quando criado */
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: #1a1a1a;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 2px solid #00acc1; /* Cor de destaque para facilitar a visualização */
+    color: #fff;
+    margin: 10px auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 0 20px rgba(0, 172, 193, 0.4);
+    z-index: 9999; /* Garante que fique acima de outros elementos */
+    position: relative;
+}
+
+#fs-solve-panel button {
+    background: #333;
+    color: #00acc1;
+    border: 1px solid #00acc1;
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#fs-solve-panel input {
+    width: 50px;
+    background: #000;
+    border: 1px solid #444;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    border-radius: 4px;
+}
+
+/* Garante que o painel suma se sair do fullscreen */
+body:not(.fullscreen-active) #fs-solve-panel {
+    display: none !important;
+}
+
+/* Remove as setinhas padrão do Chrome, Safari, Edge e Firefox */
+#fs-step-input::-webkit-outer-spin-button,
+#fs-step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#fs-step-input {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+
+/* Estilo 3D (Padrão) */
+.piece {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  box-sizing: border-box;
+  /* Sombras 3D */
+  box-shadow: 
+    inset 3px 3px 5px rgba(255, 255, 255, 0.6), 
+    inset -3px -3px 5px rgba(0, 0, 0, 0.2), 
+    2px 2px 4px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0,0,0,0.1);
+  transition: all 0.3s ease; /* Suaviza a transição entre os modos */
+}
+
+/* O buraco (só aparece se NÃO for clean-mode) */
+.piece::after {
+  content: "";
+  display: block;
+  box-shadow: 
+    inset 3px 3px 5px rgba(0, 0, 0, 0.3), 
+    inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
+
+/* --- REGRAS PARA O MODO CLEAN --- */
+.board.clean-mode .piece {
+  box-shadow: none !important; /* Remove sombras */
+  border: 2px solid rgba(0,0,0,0.1); /* Borda simples */
+}
+
+.board.clean-mode .piece::after {
+  display: none !important; /* Esconde os buracos */
+}
+
+/* --- CORES E TAMANHOS (Mantidos) --- */
+.piece.red { background-color: #e32636; width: 122px; height: 122px; }
+.piece.red::after { width: 50px; height: 50px; border-radius: 12px; }
+
+.piece.yellow { background-color: #ffd700; width: 62px; height: 62px; }
+.piece.yellow::after { width: 25px; height: 25px; border-radius: 50%; }
+
+.piece.blue { background-color: #2ecc71; width: 124px; height: 62px; }
+.piece.blue::after { width: 80px; height: 25px; border-radius: 20px; }
+
+.piece.green { background-color: #1e90ff; width: 62px; height: 124px; }
+.piece.green::after { width: 25px; height: 80px; border-radius: 20px; }
+
+body {
+    overflow: hidden; /* Remove a barra e impede o movimento */
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="game-area">
+    <div class="controls">
+<div class="board-wrapper">
+  <div class="board" id="board"></div>
+</div>
+<div class="info-area" style="margin-top: 150px; margin-right: -100px">
+  <div class="info" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 7px;">
+    
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 1px;">
+      <div style="font-size: 11px; color: #888; letter-spacing: 2px; font-weight: bold; text-transform: uppercase;">
+        Challenge Mode
+      </div>
+      
+      <div style="display: flex; gap: 5px;">
+        <button onclick="startchallenge()" id="btn-start" title="Iniciar" style="background: none; border: 1px solid #444; color: #888; cursor: pointer; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+          ▶ Iniciar
+        </button>
+        <button onclick="stopchallenge()" id="btn-stop" title="Parar" style="background: none; border: 1px solid #444; color: #888; cursor: pointer; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+          ■ Parar
+        </button>
+      </div>
+    </div>
+	
+
+    <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+      <div style="display: flex; gap: 4px;">
+        <button class="btn-adjust" onclick="adjustTimer(-30)">-30s</button>
+        <button class="btn-adjust" onclick="adjustTimer(-10)">-10s</button>
+      </div>
+
+      <input type="text" id="input-timer-limit" value="01:00" onchange="syncTimerInput(this.value)" 
+             style="width: 50px; text-align: center; background: transparent; border: 1px solid #333; color: black;">
+
+      <div style="display: flex; gap: 4px;">
+        <button class="btn-adjust" onclick="adjustTimer(10)">+10s</button>
+        <button class="btn-adjust" onclick="adjustTimer(30)">+30s</button>
+      </div>
+    </div>
+	
+
+  </div>
+  
+  <div id="solution-viewer" style="display: none; margin-top: 1px; background: #e0f7fa; padding: 10px; border-radius: 8px; border: 1px solid #00acc1; text-align: center;">
+  <div style="position: static; font-weight: bold; margin-bottom: 5px;">Solução Encontrada! 💡 <button id="btn-play" style="padding:5px; height:28px; margin-left:4px;" onclick="fecharSolucao()">x</button> </div>
+  <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+  <button onclick="stopSolution(); goToStep(0);" style="padding: 5px 10px; cursor: pointer;" title="Início">⏮</button>
+    <button style="font-size: 20px; padding: 5px 15px;">❮</button>
+    
+    <div style="display: flex; align-items: center; gap: 5px; font-family: monospace; font-size: 18px;">
+      <input type="number" id="step-input" value="0" min="0" 
+             style="width: 50px; text-align: center; font-size: 18px; border: 1px solid #00acc1; border-radius: 4px;">
+      <span>/ <span id="total-steps">0</span></span>
+    </div>
+
+
+    <button style="font-size: 20px; padding: 5px 15px;">❯</button>
+	  	<button onclick="stopSolution(); goToLastStep()" style="padding: 5px 10px; cursor: pointer; position: relative; z-index: 999; pointer-events: auto;" title="Fim">⏭</button>
+	
+  </div>
+  	  <button id="btn-play" onclick="playSolution()" style="padding: 5px 15px; background-color: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">Play</button>
+	  <button id="btn-stop" onclick="stopSolution()" style="padding: 5px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Stop</button>
+	  
+	  <div class="speed-control" style="display: inline-flex; align-items: center; gap: 5px; margin-left: 10px;">
+  <button onclick="changeSpeed(-0.1)">-</button>
+  <input type="text" id="speed-input" value="1.00x" readonly style="width: 50px; text-align: center;">
+  <button onclick="changeSpeed(0.1)" style="position: relative; z-index: 999; pointer-events: auto;">+</button>
+</div>
+  
+</div>
+</div>
+</div>
+    </div>
+
+<div class="sidebar">
+  <div class="pieces-and-info">
+    <div id="pieces"></div>
+	
+	
+	</div>
+
+    </div>
+	
+	
+  </div>
+  
+</div>
+
+    <div class="info-area" >
+	      <div class="info">
+        <div>⏱️ Tempo: <span id="timer">00:00:00</span></div>
+        <div>🎯 Movimentos: <span id="moves">0</span></div>
+      </div>
+      <button onclick="startGame()">🎮 Jogar</button>
+      <button onclick="stopGame()">😒 Desistir</button>
+	  <button id="btnClearBoard" onclick="fecharSolucao()">❌ Limpar</button>
+	  	  <button onclick="restorePositions()">🔄 Reiniciar</button>
+		  <button id="btnSolve" onclick="resolver()">🚀 Resolver</button>
+	  <button onclick="exportarParaJson()">💾 Exportar</button>
+	  <button onclick="importarJson()">📂 Importar</button>
+		<input type="file" id="importarArquivo" style="display: none;" accept=".json" />
+		<!--<button onclick="resetPage()">⚡ Resetar</button> ----!> 
+	<div
+	  <div style="display: flex; align-items: flex-start; gap: 10px;">
+	  <button onclick="gerarEImportarFaseAleatoria()">🎲 </button>
+	  <button onclick="toggleConfig()" style="background-color: #555;">⚙️ </button> 
+
+  <div id="config-widget" style="display: none; background: #eee; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px; min-width: 100px;">
+    <div style="margin-bottom: 8px;">
+      <label>Vertical (2x1): <span id="val-v">3</span></label><br>
+      <input type="range" id="slider-v" min="0" max="6" value="3" style="width: 100%;">
+    </div>
+    <div>
+      <label>Horizontal (1x2): <span id="val-h">4</span></label><br>
+      <input type="range" id="slider-h" min="0" max="6" value="4" style="width: 100%;">
+    </div>
+  </div>
+
+</div>
+
+  <div id="level-control" style="display: flex; align-items: center; gap: 8px; margin-bottom: 1px;">
+  <button id="prev-level" style="font-size: 20px;">‹</button>
+  
+  <input
+    type="text"
+    id="level-input"
+    min="1"
+    max="420"
+    value="001"
+    style="width: 60px; text-align: center; font-size: 16px;"
+  />
+  
+  <button id="next-level" style="font-size: 20px;">›</button>
+  <button onclick="fecharSolucao(); confirmarNivel()">✅</button>
+  	  <button id="btnRandom" onclick="generateRandomPuzzle();">🎲  </button>
+	  
+	  </div>
+	  
+  <div style="margin-top: 1px; padding: 10px; border-radius: 8px;">
+    <label for="seletor-fases" style="display: block; font-weight: bold; margin-bottom: 5px;">
+      Fases Clássicas: 🏆
+    </label>
+    <select id="seletor-fases" style="width: 100%; padding: 5px; cursor: pointer;">
+      <option value="">-- Selecione uma fase --</option>
+    </select>
+  </div>
+  <div id="mirror" style="display: flex; gap: 10px; background: #eee; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; width: 155px;" class="mirror-controls">
+  <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+    <input type="checkbox" id="mirror-h" onchange="aplicarEspelhamento()"> ↔️
+  </label>
+  <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+    <input type="checkbox" id="mirror-v" onchange="aplicarEspelhamento()"> ↕️ 
+  </label>
+    <label style="cursor: pointer; display: flex; align-items: center; gap:1px;">
+	<input type="checkbox" id="check-estilo" checked onchange="alternarEstilo()" style="width: 100%; padding: 1px; cursor: pointer; gap: 1px;"> 
+    🎨
+    </label>
+  
+</div>
+</div>
+
+
+</div>
+
+<div id="level-selector-container" style="z-index:10">
+  <div id="level-grid"></div>
+</div> 
+
+<div id="top-widgets" style="position: fixed; top: 20px; right: 180px; display: flex; flex-direction: column; gap: 10px; z-index: 1000;">  <!--- right: 120/180---!>
+    <div class="lang-container" style="position: relative;">
+        <button  id="btn-lang" onclick="toggleLangMenu()" 
+        style="width: 40px; 
+               height: 40px; 
+               border-radius: 50%; 
+               border: 2px solid #444; 
+               background: #fff; 
+               cursor: pointer; 
+               padding: 0; 
+               overflow: hidden; 
+               display: flex; 
+               align-items: center; 
+               justify-content: center;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" 
+         alt="Brasil" 
+         style="width: 100%; height: 100%; object-fit: cover;">
+</button>
+<div id="lang-menu" style="display: none; position: absolute; top: -35px; right: -120px; background: white; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000;">
+    
+    <button onclick="changeLanguage('PT')" 
+            onmouseover="this.style.background='#eee'" onmouseout="this.style.background='none'"
+            style="display: flex; align-items: center; gap: 8px; width: 100px; padding: 10px; border: none; background: none; cursor: pointer; font-family: sans-serif; font-weight: bold;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" style="width: 20px; height: 15px; object-fit: cover; border-radius: 2px;">
+        PT
+    </button>
+
+    <button onclick="changeLanguage('EN')" 
+            onmouseover="this.style.background='#eee'" onmouseout="this.style.background='none'"
+            style="display: flex; align-items: center; gap: 8px; width: 100px; padding: 10px; border: none; background: none; cursor: pointer; font-family: sans-serif; font-weight: bold;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg" style="width: 20px; height: 15px; object-fit: cover; border-radius: 2px;">
+        EN
+    </button>
+
+    <button onclick="changeLanguage('ES')" 
+            onmouseover="this.style.background='#eee'" onmouseout="this.style.background='none'"
+            style="display: flex; align-items: center; gap: 8px; width: 100px; padding: 10px; border: none; background: none; cursor: pointer; font-family: sans-serif; font-weight: bold;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" style="width: 20px; height: 15px; object-fit: cover; border-radius: 2px;">
+        ES
+    </button>
+</div>
+		
+    </div>
+	
+	<button id="btn-theme" onclick="toggleTheme()" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; background: #fff; cursor: pointer; font-size: 18px;">🌓</button>
+
+    <button onclick="toggleHelpWidget()" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; background: #fff; cursor: pointer; font-weight: bold; font-size: 20px;">?</button>
+</div>
+
+<div id="help-widget" style="z-index:99999; display: none; position: fixed; top: 38%; right:-10%; transform: translate(-50%, -50%); width: 300px; background: white; border: 2px solid #444; border-radius: 12px; padding: 20px; z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 id="txt-help-title" style="margin: 0;">Como jogar Klotski</h3>
+        <button onclick="toggleHelpWidget()" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+    </div>
+    <p id="txt-help-content">O objetivo é deslizar os blocos pelo tabuleiro até que a peça grande (vermelha) alcance a saída na parte inferior central.</p>
+	<h3>Atalhos de Teclado</h3>
+  <ul>
+    <li><strong>Espaço:</strong> Iniciar jogo</li>
+	<li><strong>Esc:</strong> Parar jogo</li>
+    <li><strong>Delete:</strong> Remover peça</li>
+    <li><strong>Setas:</strong> Mudar Nível / Mover peça</li>
+	<li><strong>F:</strong> Tela Cheia</li>
+    <li><strong>S:</strong> Resolver puzzle</li>
+	<li><strong>C:</strong> Limpar Tabuleiro</li>
+	<li><strong>R:</strong> Resetar</li>
+  </ul>
+  	<p><small id="txt-click-instruction">Clique em uma peça para selecioná-la e use as setas ou o mouse para mover.</small></p>
+</div>
+	  
+	  </div>
+	  
+	  
+	  
+  <!--- <button id="btnCarregarFase" style="margin-top: 8px; margin-top:0px">▶</button> --!>
+  
+  <div id="pieces"></div>
+  
+  <script src="klotski.js"></script>
+
+  <script>
+    const board = document.getElementById("board");
+    const piecesContainer = document.getElementById("pieces");
+    const timerDisplay = document.getElementById("timer");
+    const movesDisplay = document.getElementById("moves");
+
+    const ROWS = 5;
+    const COLS = 4;
+    const CELL_SIZE = 60;
+    const GAP = 2;
+    const STEP = CELL_SIZE + GAP; // 62
+    const BOARD_PADDING = 4;
+	
+	let savedPositions = null;
+	
+// --- Lógica de Geração Portada para o Navegador ---
+
+// Variáveis globais para os sliders
+
+let config_qtd_verticais = 3;
+let config_qtd_horizontal = 2;
+
+const btn = document.getElementById('next-level');
+const btn2 = document.getElementById('prev-level');
+
+let levelInterval;
+
+
+let intervalId;
+let intervalId2;  // Variável para guardar o controle do tempo
+
+let playbackInterval = null; // Variável que guardará o intervalo
+const PLAYBACK_SPEED = 800; // Velocidade em milissegundos (800ms = 0.8 segundos)
+
+const levelGrid = document.getElementById('level-grid');
+
+// Valores originais padrão
+const DEFAULT_PIECE_COLORS = {
+    large: "#ff0000",
+    vertical: "#0000ff",
+    horizontal: "#00ff00",
+    small: "#ffff00"
+};
+
+
+// Exemplo de como aplicar as classes dinamicamente
+function aplicarEstiloPeca(el, largura, altura) {
+    el.classList.add('piece');
+    
+    if (largura === 2 && altura === 2) {
+        el.classList.add('piece-red');
+    } else if (largura === 1 && altura === 2) {
+        el.classList.add('piece-blue'); // Vertical
+    } else if (largura === 2 && altura === 1) {
+        el.classList.add('piece-green'); // Horizontal
+    } else if (largura === 1 && altura === 1) {
+        el.classList.add('piece-yellow');
+    }
+}
+
+function alternarEstilo() {
+    const checkbox = document.getElementById('check-estilo');
+    const board = document.querySelector('.board'); // Certifique-se que seu grid tem a classe 'board'
+
+    if (checkbox.checked) {
+        board.classList.remove('clean-mode');
+    } else {
+        board.classList.add('clean-mode');
+    }
+}
+
+// Localiza o container que você modificou
+const widgetsContainer = document.getElementById('top-widgets');
+
+const btnFullscreen = document.createElement('button');
+btnFullscreen.id = 'toggleFullscreen';
+btnFullscreen.innerText = '🔍'; 
+btnFullscreen.title = 'Alternar Tela Cheia';
+
+// Estilo para combinar com os outros botões circulares
+btnFullscreen.style.cssText = 'width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; background: #fff; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;';
+
+if (widgetsContainer) {
+    // Coloca no topo da lista vertical
+    widgetsContainer.insertBefore(btnFullscreen, widgetsContainer.firstChild);
+}
+
+
+// Evento de clique no botão
+btnFullscreen.addEventListener('click', () => {
+  document.body.classList.toggle('fullscreen-active');
+});
+
+// Mantém os atalhos de teclado: 'F' para alternar e 'Esc' para sair
+document.addEventListener("keydown", (e) => {
+  if (e.key === "f" || e.key === "F") {
+    document.body.classList.toggle('fullscreen-active');
+  }
+});
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await createLevelSelector();
+    await loadLevel("001", 1);
+
+    // ALTERAÇÃO AQUI: Seleciona pelo atributo onclick em vez de ID
+    const btnRandom = document.querySelector('button[onclick="generateRandomPuzzle()"]');
+    
+    if (btnRandom) {
+        console.log("Aguardando 30 segundos para liberar o gerador...");
+        setTimeout(() => {
+            btnRandom.disabled = false;
+            btnRandom.innerText = "🎲"; 
+            console.log("Botão liberado com segurança.");
+        }, 1000); // 30 segundos
+    }
+});
+
+
+function aplicarEspelhamento() {
+    const isMirrorH = document.getElementById('mirror-h').checked;
+    const isMirrorV = document.getElementById('mirror-v').checked;
+    
+    const piecesElements = document.querySelectorAll('.piece');
+    const step = 62;
+    const offset = 4;
+
+    piecesElements.forEach(el => {
+
+        // salva posição base se não existir
+        if (!el.dataset.baseX) {
+            el.dataset.baseX = Math.round((parseInt(el.style.left) - offset) / step);
+            el.dataset.baseY = Math.round((parseInt(el.style.top) - offset) / step);
+        }
+
+        let x = parseInt(el.dataset.baseX);
+        let y = parseInt(el.dataset.baseY);
+
+        const w = Math.round(el.offsetWidth / 60);
+        const h = Math.round(el.offsetHeight / 60);
+
+        if (isMirrorH) x = (4 - w) - x;
+        if (isMirrorV) y = (5 - h) - y;
+
+        el.style.left = (x * step + offset) + "px";
+        el.style.top = (y * step + offset) + "px";
+
+        el.dataset.currentX = x;
+        el.dataset.currentY = y;
+    });
+
+    if (typeof mapearEstadoInicial === "function") {
+        mapearEstadoInicial();
+    }
+}
+
+
+
+// Mapeamento de cores baseado nas classes do seu index.html
+const colorMap = {
+    'LARGE': 'red',           // 2x2
+    'WIDE_VERTICAL': 'blue',  // 1x2 (No seu CSS original Green/Blue estão trocados, ajuste se necessário)
+    'WIDE_HORIZONTAL': 'lime', // 2x1
+    'SMALL': 'yellow'         // 1x1
+};
+
+
+function confirmarNivel() {
+    fecharSolucao();
+    
+    const inputLevel = document.getElementById('level-input');
+    let val = parseInt(inputLevel.value);
+    
+    if (!isNaN(val)) {
+        // 1. Validar limites
+        if (val < 1) val = 1;
+        if (typeof MAX_LEVEL !== 'undefined' && val > MAX_LEVEL) val = MAX_LEVEL;
+
+        // 2. SINCRONIZAR A MEMÓRIA (A variável que as setas usam)
+        currentLevel = val; 
+
+        // 3. Formatar o número (ex: 005)
+        const padded = String(currentLevel).padStart(3, "0");
+        
+        // 4. ATUALIZAR A INTERFACE (O que o usuário vê)
+        inputLevel.value = padded; // Atualiza o próprio campo de digitar
+        
+        // Se houver outro lugar que mostre o número, atualize aqui:
+        // Exemplo: document.getElementById('fase-atual').textContent = padded;
+
+        // 5. EXECUTAR A CARGA
+        updateSelectedThumbnail(currentLevel);
+        loadLevel(padded, currentLevel);
+        
+        console.log("Sistema sincronizado para a fase:", currentLevel);
+    } else {
+        inputLevel.value = String(currentLevel).padStart(3, "0");
+    }
+}
+
+function updateSelectedThumbnail(levelIndex) {
+    // Remove o destaque de qualquer miniatura anterior
+    const previouslySelected = document.querySelector('.level-item.selected-level');
+    if (previouslySelected) {
+        previouslySelected.classList.remove('selected-level');
+    }
+
+    // Encontra todas as miniaturas e seleciona a que corresponde ao levelIndex
+    const allItems = document.querySelectorAll('.level-item');
+    // O levelIndex geralmente começa em 1, então pegamos o item (index - 1)
+    const targetItem = allItems[levelIndex - 1];
+
+    if (targetItem) {
+        targetItem.classList.add('selected-level');
+        
+        // Opcional: faz o seletor rolar automaticamente até a miniatura selecionada
+        targetItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+async function createLevelSelector() {
+    for (let i = 1; i <= 511; i++) {
+        const paddedNumber = i.toString().padStart(3, '0');
+        
+        const item = document.createElement('div');
+        item.className = 'level-item';
+        
+        const miniBoard = document.createElement('div');
+        miniBoard.className = 'mini-board';
+        
+        const label = document.createElement('div');
+        label.className = 'level-number';
+        label.innerText = ` ${i}`;
+
+        item.appendChild(miniBoard);
+        item.appendChild(label);
+        
+        item.onclick = () => {
+            // 1. Remove a borda de qualquer nível que já esteja selecionado
+            const previouslySelected = document.querySelector('.level-item.selected-level');
+            if (previouslySelected) {
+                previouslySelected.classList.remove('selected-level');
+            }
+			
+			updateSelectedThumbnail(i); // Atualiza a borda
+			
+			// 2. Sincroniza as variáveis globais e o input de texto
+    currentLevel = i; // Atualiza a variável global de nível
+    document.getElementById('level-input').value = paddedNumber; // Atualiza o "001" no seletor
+
+            // 2. Adiciona a borda ao nível clicado
+            item.classList.add('selected-level');
+
+            // 3. Chama a função original de carregar o nível
+            loadLevel(paddedNumber, i); 
+        };
+
+        levelGrid.appendChild(item);
+		
+		// Se for o nível 1, seleciona ele automaticamente ao carregar
+        if (i === 1) {
+            item.classList.add('selected-level');
+            // Opcional: chama o loadLevel aqui se você quiser garantir 
+            // que os dados do nível 1 carreguem no tabuleiro principal
+            loadLevel(paddedNumber, i);
+        }
+
+
+        // O restante do seu código de fetch (levels) continua igual...
+fetch(`levels/${paddedNumber}.json`)
+    .then(res => {
+        if (!res.ok) throw new Error(`Nível ${paddedNumber} não encontrado`);
+        return res.json();
+    })
+    .then(data => renderMiniPreview(miniBoard, data))
+    .catch(e => {
+        // REMOVA o segundo fetch que existia aqui (fetch(`levels/${i}.json`))
+        // Isso evita que o navegador tente carregar "1.json" e gere o erro 404
+        console.warn(e.message); 
+    });
+    }
+}
+
+function renderMiniPreview(container, data) {
+    const MINI_STEP = 20; // Tamanho de cada célula na miniatura
+
+    data.blocks.forEach(block => {
+        const miniPiece = document.createElement('div');
+        miniPiece.className = 'mini-piece';
+        
+        // Define dimensões baseadas no tipo
+        let w = 1, h = 1;
+        if (block.blockType === "LARGE") { w = 2; h = 2; }
+        else if (block.blockType === "WIDE_VERTICAL") { w = 1; h = 2; }
+        else if (block.blockType === "WIDE_HORIZONTAL") { w = 2; h = 1; }
+
+        // Estilização da mini peça
+        miniPiece.style.width = (w * MINI_STEP) + "px";
+        miniPiece.style.height = (h * MINI_STEP) + "px";
+        miniPiece.style.left = (block.pos.x * MINI_STEP) + "px";
+        miniPiece.style.top = (block.pos.y * MINI_STEP) + "px";
+        miniPiece.style.backgroundColor = colorMap[block.blockType] || 'gray';
+        
+        container.appendChild(miniPiece);
+    });
+}
+
+function sincronizarInputsSolucao() {
+    // 1. Atualiza o modo normal (se existir)
+    const stepInput = document.getElementById("step-input");
+    const totalSteps = document.getElementById("total-steps");
+    
+    if (stepInput) stepInput.value = currentStepIndex;
+    if (totalSteps) totalSteps.innerText = currentSolutionSteps.length - 1;
+
+    // 2. ATUALIZAÇÃO PARA O MODO FULLSCREEN (O QUE ESTÁ FALTANDO)
+    const fsStepInput = document.getElementById("fs-step-input");
+    const fsTotalSteps = document.getElementById("fs-total-steps");
+
+    if (fsStepInput) {
+        fsStepInput.value = currentStepIndex;
+    }
+    if (fsTotalSteps) {
+        fsTotalSteps.innerText = currentSolutionSteps.length - 1;
+    }
+}
+
+async function loadLevel(fileName, displayNum) {
+const isFullscreen = document.body.classList.contains('fullscreen-active');
+    try {
+        fecharSolucao(); 
+        const response = await fetch(`levels/${fileName}.json`);
+        if (!response.ok) throw new Error("Fase não encontrada");
+        const json = await response.json();
+        
+        carregarBlocosDoJson(json);
+			document.getElementById("mirror-h").checked = false;
+document.getElementById("mirror-v").checked = false;
+
+        // --- ADICIONE ESTA LINHA ---
+        // Salva os blocos para que o Reiniciar saiba o que fazer
+        savedPositions = JSON.parse(JSON.stringify(json.blocks)); 
+        // ---------------------------
+		
+		            resolver();
+                    criarOuAtualizarPainelFullscreen();
+
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+        if (typeof mapearEstadoInicial === "function") {
+            mapearEstadoInicial();
+			            resolver();
+                    if (isFullscreen) criarOuAtualizarPainelFullscreen();
+
+        }
+    } catch (err) {
+        console.error("Erro ao carregar fase:", fileName, err);
+    }
+}
+function mapearEstadoInicial() {
+    // Esta função varre o tabuleiro e regista a posição de cada peça para o resolvedor
+    const piecesElements = document.querySelectorAll('.piece');
+    const estado = [];
+
+    piecesElements.forEach(el => {
+        // Pega os dados das peças diretamente do DOM/HTML
+        const w = parseInt(el.style.width) / 60;  // converte px para unidades (1 ou 2)
+        const h = parseInt(el.style.height) / 60;
+        const x = parseInt(el.style.left) / 62;   // 60px + 2px de gap
+        const y = parseInt(el.style.top) / 62;
+
+        estado.push({
+            x: Math.round(x),
+            y: Math.round(y),
+            w: Math.round(w),
+            h: Math.round(h),
+            id: el.innerText || el.id // usa o número ou ID da peça
+        });
+    });
+
+    // Atualiza a variável global que o seu resolvedor utiliza
+    // Verifique se o seu resolvedor usa o nome 'pieces' ou 'currentState'
+    window.pieces = estado; 
+    console.log("Estado do tabuleiro mapeado:", estado);
+}
+
+
+// 1. Lógica do Widget de Ajuda
+function toggleHelpWidget() {
+    const widget = document.getElementById('help-widget');
+    const board = document.querySelector('.board'); 
+    const langContainer = document.querySelector('.lang-container'); // Seleciona o container de tradução
+    
+    // Inverte o estado do widget (mostrar/esconder)
+    if (widget.style.display === 'none' || widget.style.display === '') {
+        widget.style.display = 'block';
+        board.classList.add('faded'); // Adiciona transparência ao tabuleiro
+        
+        // DESATIVA o widget de tradução
+        if (langContainer) {
+            langContainer.style.pointerEvents = 'none';
+            langContainer.style.opacity = '0.5'; // Opcional: deixa visualmente "desativado"
+        }
+    } else {
+        widget.style.display = 'none';
+        board.classList.remove('faded'); // Volta o tabuleiro ao normal
+        
+        // REATIVA o widget de tradução
+        if (langContainer) {
+            langContainer.style.pointerEvents = 'auto';
+            langContainer.style.opacity = '1';
+        }
+    }
+}
+
+// Fecha o help-widget ao clicar fora dele
+window.addEventListener('click', function(event) {
+    const helpWidget = document.getElementById('help-widget');
+    const board = document.querySelector('.board');
+    const langContainer = document.querySelector('.lang-container');
+
+    // Verifica se o widget está visível
+    if (helpWidget.style.display === 'block') {
+        
+        /* Verifica se o clique:
+           1. NÃO foi dentro do helpWidget
+           2. NÃO foi no botão "?" (que chama a função toggleHelpWidget)
+        */
+        if (!helpWidget.contains(event.target) && !event.target.closest('button[onclick="toggleHelpWidget()"]')) {
+            
+            // Executa a mesma lógica de fechamento da sua função toggleHelpWidget
+            helpWidget.style.display = 'none';
+            board.classList.remove('faded');
+            
+            // Reativa o menu de idiomas
+            if (langContainer) {
+                langContainer.style.pointerEvents = 'auto';
+                langContainer.style.opacity = '1';
+            }
+        }
+    }
+});
+
+// 2. Lógica do Tema (Dark/Light)
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+}
+
+
+function toggleLangMenu() {
+    const menu = document.getElementById('lang-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+const translations = {
+    PT: {
+helpTitle: "Como jogar Klotski",
+        helpContent: "O objetivo é deslizar os blocos pelo tabuleiro até que a peça grande (vermelha) alcance a saída na parte inferior central.",
+        helpShortcutsTitle: "Atalhos de Teclado",
+		helpKeyboardList: "<li><strong>Espaço:</strong> Iniciar jogo</li><li><strong>Esc:</strong> Parar jogo</li><li><strong>Delete:</strong> Remover peça</li><li><strong>Setas:</strong> Trocar Nível/Mover peças</li><li><strong>F:</strong> Tela Cheia</li><li><strong>S:</strong> Resolver puzzle</li><li><strong>C:</strong> Limpar Tabuleiro<li><strong>R:</strong> Resetar</li>",
+        helpClickInstruction: "Clique em uma peça para selecioná-la e use as setas ou o mouse para mover.",
+        play: "🎮 Jogar",
+        giveUp: "😒 Desistir",
+        clear: "❌ Limpar",
+        restart: "🔄 Reiniciar",
+        solve: "🚀 Resolver",
+        export: "💾 Exportar",
+        import: "📂 Importar",
+        challengeTitle: "Challenge Mode",
+        btnStart: "▶ Iniciar",
+        btnStop: "■ Parar",
+        solutionFound: "Solução Encontrada! 💡",
+        classicLevels: "Fases Clássicas: 🏆",
+        selectLevel: "-- Selecione uma fase --",
+		timeLabel: "⏱️ Tempo: ",
+        movesLabel: "🎯 Movimentos: ",
+		vertical: "Vertical",
+        horizontal: "Horizontal",
+    },
+    EN: {
+helpTitle: "How to play Klotski",
+        helpContent: "The goal is to slide blocks around the board until the large (red) piece reaches the exit at the bottom center.",
+        helpShortcutsTitle: "Keyboard Shortcuts",
+helpKeyboardList: "<li><strong>Space:</strong> Start game</li><li><strong>Esc:</strong> Stop game</li><li><strong>Delete:</strong> Remove pieces</li><li><strong>Arrow Keys:</strong> Change Level/Move pieces</li><li><strong>F:</strong> Fullscreen</li><li><strong>S:</strong> Solve puzzle</li><li><strong>C:</strong> Clear Board</li><li><strong>R:</strong> Reset</li>",
+        helpClickInstruction: "Click a piece to select it and use arrows or mouse to move.",
+        play: "🎮 Play",
+        giveUp: "😒 Give up",
+        clear: "❌ Clear",
+        restart: "🔄 Restart",
+        solve: "🚀 Solve",
+        export: "💾 Export",
+        import: "📂 Import",
+        challengeTitle: "Challenge Mode",
+        btnStart: "▶ Start",
+        btnStop: "■ Stop",
+        solutionFound: "Solution Found! 💡",
+        classicLevels: "Classic Levels: 🏆",
+        selectLevel: "-- Select a level --",
+        timeLabel: "⏱️ Time: ",
+        movesLabel: "🎯 Moves: ",
+		vertical: "Vertical",
+        horizontal: "Horizontal",
+    },
+    ES: {
+helpTitle: "Cómo jugar Klotski",
+        helpContent: "El objetivo es deslizar los bloques por el tablero hasta que la pieza grande (roja) llegue a la salida en la parte inferior central.",
+        helpShortcutsTitle: "Atajos de Teclado",
+helpKeyboardList: "<li><strong>Espacio:</strong> Iniciar juego</li><li><strong>Esc:</strong> Detener juego</li><li><strong>Suprimir:</strong> Eliminar pieza</li><li><strong>Flechas:</strong> Cambiar Nivel/Mover piezas</li><li><strong>F:</strong> Pantalla Completa</li><li><strong>S:</strong> Resolver puzzle</li><li><strong>C:</strong> Limpiar tablero</li><li><strong>R:</strong> Reiniciar</li>",
+        helpClickInstruction: "Haz clic en una pieza para seleccionarla y usa las flechas o el ratón para moverla.",
+        play: "🎮 Jugar",
+        giveUp: "😒 Rendirse",
+        clear: "❌ Limpiar",
+        restart: "🔄 Reiniciar",
+        solve: "🚀 Resolver",
+        export: "💾 Exportar",
+        import: "📂 Importar",
+        challengeTitle: "Modo Desafío",
+        btnStart: "▶ Iniciar",
+        btnStop: "■ Detener",
+        solutionFound: "¡Solución Encontrada! 💡",
+        classicLevels: "Fases Clásicas: 🏆",
+        selectLevel: "-- Selecciona uma fase --",
+		timeLabel: "⏱️ Tiempo: ",
+        movesLabel: "🎯 Movimientos: ",
+		vertical: "Vertical",
+        horizontal: "Horizontal",
+    }
+};
+
+function changeLanguage(lang) {
+    // 1. Dicionário com os links das bandeiras
+    const flags = {
+        'PT': 'https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg',
+        'EN': 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg',
+        'ES': 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg'
+    };
+
+    // 2. Atualiza o botão principal para preencher com a bandeira
+    const btnLang = document.getElementById('btn-lang');
+    
+    // Remove qualquer texto que estivesse lá (como o "PT" inicial)
+    btnLang.innerText = ''; 
+    
+    // Define a imagem de fundo para a bandeira correspondente
+    btnLang.style.backgroundImage = `url('${flags[lang]}')`;
+    
+    // Garante que a imagem cubra todo o botão e esteja centralizada
+    btnLang.style.backgroundSize = 'cover';
+    btnLang.style.backgroundPosition = 'center';
+    btnLang.style.backgroundRepeat = 'no-repeat';
+
+    // Esconde o menu
+    document.getElementById('lang-menu').style.display = 'none';
+    
+    // -- Restante da sua função de tradução (sem alterações abaixo daqui) --
+    const t = translations[lang];
+
+    // 3. Tradução do Widget de Ajuda
+    if(document.getElementById('txt-help-title')) document.getElementById('txt-help-title').innerText = t.helpTitle;
+    if(document.getElementById('txt-help-content')) document.getElementById('txt-help-content').innerText = t.helpContent;
+
+    // 4. Tradução dos Botões de Ação
+    const actionButtons = document.querySelectorAll('.info-area button');
+    actionButtons.forEach(btn => {
+        const onClick = btn.getAttribute('onclick');
+        if (onClick === 'startGame()') btn.innerText = t.play;
+        if (onClick === 'stopGame()') btn.innerText = t.giveUp;
+        if (onClick === 'fecharSolucao()') btn.innerText = t.clear;
+        if (onClick === 'restorePositions()') btn.innerText = t.restart;
+        if (onClick === 'resolver()') btn.innerText = t.solve;
+        if (onClick === 'exportarParaJson()') btn.innerText = t.export;
+        if (onClick === 'importarJson()') btn.innerText = t.import;
+    });
+	
+// 2. Tradução de Tempo e Movimentos (Preservando os valores)
+    // Buscamos o primeiro nó de texto dentro da div para não apagar o <span>
+    const timerDiv = document.getElementById('timer').parentNode;
+    const movesDiv = document.getElementById('moves').parentNode;
+	
+	// Atualiza apenas o texto que vem ANTES do span
+    timerDiv.firstChild.textContent = t.timeLabel;
+    movesDiv.firstChild.textContent = t.movesLabel;
+
+    // 4. Tradução do Challenge Mode
+    const challengeLabel = document.querySelector('div[style*="letter-spacing: 2px"]');
+    if (challengeLabel) challengeLabel.innerText = t.challengeTitle;
+    
+    document.getElementById('btn-start').innerText = t.btnStart;
+    // Note: você tem dois elementos com ID 'btn-stop', o ideal é usar seletores diferentes
+    document.querySelectorAll('#btn-stop').forEach(btn => {
+        if (btn.getAttribute('onclick') === 'stopchallenge()') btn.innerText = t.btnStop;
+    });
+
+    // 5. Tradução do Visualizador de Solução
+    const solTitle = document.querySelector('#solution-viewer div[style*="font-weight: bold"]');
+    if (solTitle) solTitle.innerText = t.solutionFound;
+
+    // 6. Tradução do Seletor de Fases Clássicas
+    const labelFases = document.querySelector('label[for="seletor-fases"]');
+    if (labelFases) labelFases.innerText = t.classicLevels;
+    
+    const selectFases = document.getElementById('seletor-fases');
+    if (selectFases && selectFases.options[0]) {
+        selectFases.options[0].text = t.selectLevel;
+    }
+	
+
+    // Atualiza o título de atalhos e a lista
+    const shortcutsTitle = document.querySelector('#help-widget h3:nth-of-type(2)'); // Seleciona o segundo H3 se houver, ou use IDs
+    if (shortcutsTitle) shortcutsTitle.innerText = t.helpShortcutsTitle;
+
+    const shortcutsList = document.querySelector('#help-widget ul');
+    if (shortcutsList) shortcutsList.innerHTML = t.helpKeyboardList;
+
+// Use querySelector para garantir que pegamos o elemento mesmo se houver conflito de IDs
+    const clickInstr = document.getElementById('txt-click-instruction');
+    
+    if (clickInstr) {
+        clickInstr.innerText = t.helpClickInstruction;
+    } else {
+        // LOG DE ERRO: Se isso aparecer no console (F12), o ID sumiu do HTML
+        console.error("Erro: O elemento 'txt-click-instruction' não foi encontrado no HTML.");
+    }
+}
+
+// Vai para o primeiro passo (0)
+function goToStep(index) {
+  showStep(index);
+  criarOuAtualizarPainelFullscreen();
+}
+
+// Vai para o último passo disponível na solução
+function goToLastStep() {
+  if (currentSolutionSteps && currentSolutionSteps.length > 0) {
+    const lastIndex = currentSolutionSteps.length - 1;
+    showStep(lastIndex);
+	criarOuAtualizarPainelFullscreen();
+  }
+}
+
+let currentSpeedMultiplier = 1.0;
+let currentSpeedMs = 500; // Velocidade base (ajuste conforme o padrão do seu código)
+let speedInterval; // Para o controle do Play
+
+function changeSpeed(delta) {
+  // Atualiza o multiplicador (limita entre 0.1x e 5.0x para não quebrar)
+  currentSpeedMultiplier = Math.max(0.1, Math.min(5.0, currentSpeedMultiplier + delta));
+  
+  // Formata o texto no input (ex: 1.10x)
+  document.getElementById('speed-input').value = currentSpeedMultiplier.toFixed(2) + "x";
+  
+  // Se o jogo estiver rodando, reinicia o intervalo com a nova velocidade
+  if (speedInterval) {
+    stopSolution();
+    playSolution();
+  }
+}
+
+function playSolution() {
+  // Calcula o delay baseado no multiplicador
+  // Se 1.00x é 500ms, 2.00x será 250ms (mais rápido)
+  const baseDelay = 500; 
+  const adjustedDelay = baseDelay / currentSpeedMultiplier;
+
+  if (speedInterval) clearInterval(speedInterval);
+  
+  speedInterval = setInterval(() => {
+    if (currentStepIndex < currentSolutionSteps.length - 1) {
+      nextStep();
+	   criarOuAtualizarPainelFullscreen();
+    } else {
+      stopSolution();
+    }
+  }, adjustedDelay);
+}
+
+function stopSolution() {
+  clearInterval(speedInterval);
+  speedInterval = null;
+  criarOuAtualizarPainelFullscreen();
+}
+
+function formatarNivel(num) {
+    return num.toString().padStart(3, '0');
+}
+
+// Função que você quer repetir
+function acaoDoBotao() {
+    fecharSolucao();
+    if (isGameStarted) return;
+
+    // ATUALIZAÇÃO INSTANTÂNEA: 
+    // Incrementamos ANTES de qualquer fetch para o número não engasgar
+    if (currentLevel < MAX_LEVEL) {
+        currentLevel++;
+    } else {
+        currentLevel = 1;
+    }
+
+    // Formata e exibe no input imediatamente
+    const padded = currentLevel.toString().padStart(3, '0');
+    document.getElementById('level-input').value = padded;
+
+    // Atualiza a UI e carrega o nível em background
+    updateSelectedThumbnail(currentLevel);
+    loadLevel(padded, padded);
+}
+
+// Variáveis para controlar os intervalos de spam do nível
+let levelNextInterval;
+let levelPrevInterval;
+
+const btnNextLevel = document.getElementById('next-level');
+const btnPrevLevel = document.getElementById('prev-level');
+
+// --- SPAMMING PARA NEXT LEVEL (›) ---
+btnNextLevel.addEventListener('mousedown', () => {
+    acaoDoBotao(); // Primeiro clique imediato
+    
+    // Inicia o spam após 250ms (delay para não disparar sem querer)
+    levelInterval = setInterval(() => {
+        acaoDoBotao();
+    }, 120); // Velocidade do spam (120ms é um valor fluido)
+});
+
+// --- SPAMMING PARA PREV LEVEL (‹) ---
+btnPrevLevel.addEventListener('mousedown', () => {
+    acaoDoBotao2(); // Primeiro clique imediato
+    
+    levelInterval = setInterval(() => {
+        acaoDoBotao2();
+    }, 120);
+});
+
+// --- FUNÇÃO PARA PARAR O SPAM (Essencial!) ---
+const stopLevelSpam = () => {
+    clearInterval(levelInterval);
+};
+
+// Para o spam quando solta o botão ou tira o mouse de cima
+btnNextLevel.addEventListener('mouseup', stopLevelSpam);
+btnNextLevel.addEventListener('mouseleave', stopLevelSpam);
+btnPrevLevel.addEventListener('mouseup', stopLevelSpam);
+btnPrevLevel.addEventListener('mouseleave', stopLevelSpam);
+
+
+function acaoDoBotao2() {
+    fecharSolucao();
+
+    if (!isGameStarted) {
+        // 1. Converte o nível atual para número para subtrair
+        let nivelNumerico = parseInt(currentLevel) || 1;
+        let anterior;
+
+        // 2. Lógica para voltar nível ou pular para o máximo
+        if (nivelNumerico > MIN_LEVEL) {
+            anterior = nivelNumerico - 1;
+        } else {
+            anterior = MAX_LEVEL;
+        }
+
+        // CORREÇÃO: Atualiza a variável global IMEDIATAMENTE
+        currentLevel = anterior;
+
+        // 3. Formata para string com 3 dígitos (ex: "001")
+        let padded = anterior.toString().padStart(3, '0');
+
+        // 4. Atualiza o visor visualmente na mesma hora
+        document.getElementById('level-input').value = padded;
+        
+        // 5. Atualiza a miniatura com o número correto
+        updateSelectedThumbnail(anterior);
+
+        // 6. Carrega o nível
+        loadLevel(padded, padded);
+    }
+}
+
+
+// 1. Variáveis de controle (Globais)
+let challengeTimerSeconds = 60; 
+let challengeInterval = null;
+let isChallengeRunning = false;
+
+// 2. Função para atualizar o texto na tela (O que você vê)
+function updateChallengeDisplay(targetSeconds) {
+    // Se não passarmos um tempo específico, usamos o valor padrão configurado
+    const timeToDisplay = (targetSeconds !== undefined) ? targetSeconds : challengeTimerSeconds;
+    
+    const mins = Math.floor(timeToDisplay / 60);
+    const secs = timeToDisplay % 60;
+    const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    
+    const displayElement = document.getElementById("countdown-display");
+    const inputElement = document.getElementById("input-timer-limit");
+    
+    if (displayElement) displayElement.textContent = formatted;
+    if (inputElement) inputElement.value = formatted;
+}
+
+// 3. Função dos botões de + e -
+function adjustTimer(amount) {
+    if (isChallengeRunning) return; 
+    challengeTimerSeconds = Math.max(10, challengeTimerSeconds + amount);
+    updateChallengeDisplay();
+}
+
+// 4. Sincroniza o que foi digitado no input
+function syncTimerInput(val) {
+    const parts = val.split(':');
+    if (parts.length === 2) {
+        const m = parseInt(parts[0]) || 0;
+        const s = parseInt(parts[1]) || 0;
+        challengeTimerSeconds = (m * 60) + s;
+        updateChallengeDisplay();
+    }
+}
+
+// 5. FUNÇÃO INICIAR (startchallenge)
+function startchallenge() {
+    if (isChallengeRunning) return;
+	
+	startGame();
+	fecharSolucao();
+
+	  if (!isRedPieceOnBoard()) {
+    return;
+  }
+  
+  
+  if (!hasAtLeastTwoEmptyCells()) {
+    return;
+  }
+  
+    if (isRedPieceInVictoryPosition()) {
+    return;
+  }
+
+    isChallengeRunning = true;
+    isGameStarted = true; // Permite mover as peças
+    let timeRemaining = challengeTimerSeconds;
+
+    // Garante que o display comece atualizado
+    updateChallengeDisplay(timeRemaining);
+
+    // LIMPA qualquer intervalo que tenha ficado aberto por erro
+    if (challengeInterval) clearInterval(challengeInterval);
+
+    challengeInterval = setInterval(() => {
+        timeRemaining--;
+        
+        // --- ESTA É A PARTE QUE FAZ DESCER VISUALMENTE ---
+        updateChallengeDisplay(timeRemaining);
+
+        if (timeRemaining <= 0) {
+            clearInterval(challengeInterval);
+            isChallengeRunning = false;
+            alert("🛑 O TEMPO ACABOU!");
+            stopchallenge();
+            if (typeof restorePositions === "function") restorePositions();
+        }
+    }, 1000);
+
+    if (typeof savePositions === "function") savePositions();
+    document.addEventListener("keydown", handleMove);
+}
+
+// 6. FUNÇÃO PARAR (stopchallenge)
+function stopchallenge() {
+    isChallengeRunning = false;
+    isGameStarted = false; 
+	
+    if (challengeInterval) clearInterval(challengeInterval);
+    challengeInterval = null;
+    
+    updateChallengeDisplay(); // Volta o visor para o tempo original configurado
+    document.removeEventListener("keydown", handleMove);
+}
+
+// 7. Garante que o cronômetro apareça assim que a página carregar
+window.addEventListener('load', () => {
+    updateChallengeDisplay();
+});
+
+// Remova a declaração solta do topo se ela estiver lá
+// const seletorFases = document.getElementById('seletor-fases'); 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const seletorFases = document.getElementById('seletor-fases');
+
+  if (seletorFases) {
+    // 1. Carrega a lista de arquivos do servidor
+    popularSeletorFases(seletorFases);
+
+    // 2. Configura o evento de clique/mudança
+    seletorFases.addEventListener('change', async (e) => {
+      const fileName = e.target.value;
+      if (!fileName) return;
+	  fecharSolucao();
+
+      try {
+        const response = await fetch(`/fases-classicas/${fileName}`);
+        const json = await response.json();
+        
+        // Chama sua função global que limpa o board e carrega o JSON
+        carregarBlocosDoJson(json);
+        
+        // Se você tiver uma função de reset de cronômetro ou status
+        if (typeof stopGame === "function") stopGame();
+		
+		// --- ADICIONE O CÓDIGO AQUI ---
+        setTimeout(() => {
+          if (typeof savePositions === "function") {
+            savePositions();
+            console.log("Posição salva após carregar fase clássica");
+          }
+        }, 100);
+		
+      } catch (err) {
+        console.error("Erro ao carregar fase:", err);
+      }
+	  				  	  resolver();
+	  criarOuAtualizarPainelFullscreen();
+    });
+  }
+});
+
+// Ajuste a função popular para receber o elemento
+async function popularSeletorFases(elemento) {
+  try {
+    const response = await fetch('/api/fases-classicas');
+    const fases = await response.json();
+
+    fases.forEach(fase => {
+      const option = document.createElement('option');
+      option.value = fase.id; 
+      option.textContent = fase.nome;
+      elemento.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao buscar lista de fases:", err);
+  }
+}
+
+
+// Função para abrir/fechar o widget
+function toggleConfig() {
+  const widget = document.getElementById("config-widget");
+  widget.style.display = widget.style.display === "none" ? "block" : "none";
+  
+  const slider1 = document.getElementById('slider-v');
+  const slider2 = document.getElementById('slider-h');
+  
+  config_qtd_verticais = parseInt(slider1.value);
+  config_qtd_horizontal = parseInt(slider2.value);
+}
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+              // Executa a mesma lógica de fechamento da sua função toggleHelpWidget
+			  
+			  const widget = document.getElementById('help-widget');
+			  const langContainer = document.querySelector('.lang-container');
+			  
+            widget.style.display = 'none';
+            board.classList.remove('faded');
+			
+			            if (langContainer) {
+                langContainer.style.pointerEvents = 'auto';
+                langContainer.style.opacity = '1';
+            }
+			
+    stopGame();
+	restorePositions();
+	resolver();
+	criarOuAtualizarPainelFullscreen();
+  }
+});
+
+
+const sV = document.getElementById("slider-v");
+const sH = document.getElementById("slider-h");
+const vV = document.getElementById("val-v");
+const vH = document.getElementById("val-h");
+
+const MAX_ESPECIAIS = 6;
+
+function updateSliders(changed) {
+  let valV = parseInt(sV.value);
+  let valH = parseInt(sH.value);
+
+  // Se a soma ultrapassar o limite de 7
+  if (valV + valH > MAX_ESPECIAIS) {
+    if (changed === 'v') {
+      // Se mudei o vertical, o horizontal diminui para compensar
+      valH = MAX_ESPECIAIS - valV;
+      sH.value = valH;
+    } else {
+      // Se mudei o horizontal, o vertical diminui para compensar
+      valV = MAX_ESPECIAIS - valH;
+      sV.value = valV;
+    }
+  }
+
+  // Atualiza as variáveis globais e a interface
+  config_qtd_verticais = valV;
+  config_qtd_horizontal = valH;
+  vV.innerText = valV;
+  vH.innerText = valH;
+}
+
+// Inicializa os sliders com o máximo possível (0 a 7)
+sV.max = MAX_ESPECIAIS;
+sH.max = MAX_ESPECIAIS;
+
+sV.addEventListener("input", () => updateSliders('v'));
+sH.addEventListener("input", () => updateSliders('h'));
+// --- Sua função gerarBlocosAleatorios ATUALIZADA ---
+function gerarBlocosAleatorios() {
+  const largura = 4;
+  const altura = 5;
+  const gridTemp = Array.from({ length: altura }, () => Array(largura).fill(0));
+  const blocks = [];
+  
+  // 1. Definição das quantidades
+  let qtd_verticais;
+  let qtd_horizontal;
+  
+  	document.getElementById("mirror-h").checked = false;
+document.getElementById("mirror-v").checked = false;
+
+  const widget = document.getElementById('config-widget');
+  
+  // Verifica se o widget está visível de fato
+  if (widget.style.display === "none" || widget.style.display === "") {
+  
+	const modo = 1
+  
+    // MODO ALEATÓRIO (Widget Fechado)
+    // Sorteia um total de peças especiais (entre 4 e 6 é um bom equilíbrio)
+	
+	if(modo==1){
+    let totalEspeciais = Math.floor(Math.random() * 3) + 4;   // 14 15 24 34 44 26 
+	//let totalEspeciais = Math.floor(Math.random() * 7); // gera entre 0 e 6 peças especiais
+    qtd_verticais = Math.floor(Math.random() * (totalEspeciais + 1));
+    qtd_horizontal = totalEspeciais - qtd_verticais;
+	}
+	
+	if(modo==2){
+	do {
+      // Sorteia independentemente de 0 a 4
+      qtd_verticais = Math.floor(Math.random() * 5); 
+      qtd_horizontal = Math.floor(Math.random() * 5);
+      
+      // Sai do laço apenas se não forem 4 e 4 ao mesmo tempo
+      // E se a área total não estourar o limite de 18 (opcional, mas seguro)
+    } while (qtd_verticais === 4 && qtd_horizontal === 4);
+	}
+	
+	if(modo==3){ //modo manuaal
+	qtd_verticais = 2;
+    qtd_horizontal = 2;
+	}
+	
+  } else {
+    // MODO MANUAL (Widget Aberto)
+    // Pega os valores exatos dos sliders globais que já são atualizados pelo evento input
+    qtd_verticais = config_qtd_verticais;
+    qtd_horizontal = config_qtd_horizontal;
+  }
+  
+  // CÁLCULO PARA OS VAZIOS:
+  const areaOcupada = 4 + (qtd_verticais * 2) + (qtd_horizontal * 2);
+  const qtd_pequenas = 18 - areaOcupada;
+
+  const tipos = [
+    { shape: [2, 2], qtd: 1, type: "LARGE" },
+    { shape: [2, 1], qtd: qtd_verticais, type: "WIDE_VERTICAL" },
+    { shape: [1, 2], qtd: qtd_horizontal, type: "WIDE_HORIZONTAL" },
+    { shape: [1, 1], qtd: qtd_pequenas, type: "SMALL" },
+  ];
+
+  let id = 1;
+  for (const tipo of tipos) {
+    let colocados = 0;
+    let tentativasTipo = 0;
+    
+    while (colocados < tipo.qtd && tentativasTipo < 1000) {
+      const row = Math.floor(Math.random() * (altura - tipo.shape[0] + 1));
+      const col = Math.floor(Math.random() * (largura - tipo.shape[1] + 1));
+
+      let overlap = false;
+      for (let i = 0; i < tipo.shape[0]; i++) {
+        for (let j = 0; j < tipo.shape[1]; j++) {
+          if (gridTemp[row + i][col + j] !== 0) overlap = true;
+        }
+      }
+
+      if (!overlap) {
+        for (let i = 0; i < tipo.shape[0]; i++) {
+          for (let j = 0; j < tipo.shape[1]; j++) {
+            gridTemp[row + i][col + j] = id;
+          }
+        }
+        blocks.push({ 
+          blockType: tipo.type, 
+          pos: { x: col, y: row } 
+        });
+        colocados++;
+        id++;
+      }
+      tentativasTipo++;
+    }
+  }
+
+  // Validação de densidade
+  const areaFinal = blocks.reduce((acc, b) => {
+      if(b.blockType === "LARGE") return acc + 4;
+      if(b.blockType === "SMALL") return acc + 1;
+      return acc + 2;
+  }, 0);
+
+  if (areaFinal !== 18) {
+      return gerarBlocosAleatorios(); 
+  }
+
+  return blocks;
+}
+
+async function gerarEImportarFaseAleatoria() {
+  const solver = typeof Klotski !== 'undefined' ? new Klotski() : null;
+  let faseValida = false;
+  let novoPuzzle = null;
+  
+  // Aguarda 500ms antes de executar o que está dentro da função
+setTimeout(() => {
+    resolver();
+    
+    // O painel precisa de um pequeno tempo extra para que o 'resolver' 
+    // termine de gerar os passos (currentSolutionSteps)
+    setTimeout(() => {
+        if (document.body.classList.contains('fullscreen-active')) {
+            criarOuAtualizarPainelFullscreen();
+        }
+    }, 100); 
+
+}, 2500);
+  
+  	document.getElementById("mirror-h").checked = false;
+document.getElementById("mirror-v").checked = false;
+  
+  fecharSolucao();
+  
+  // 1. Pega o nível atual do input para não gerar um número aleatório
+  const levelInput = document.getElementById("level-input");
+  const levelAtual = parseInt(levelInput.value) || 1;
+
+  // Mostra um feedback visual simples (opcional)
+  console.log("Buscando fase solúvel...");
+
+  while (!faseValida) {
+    const blocosParaGerar = gerarBlocosAleatorios(); 
+    
+    // Converte para o formato que o seu solver (klotski.js) exige
+    const blocosFormatadosParaSolver = blocosParaGerar.map(b => {
+      let shape;
+      if (b.blockType === "LARGE") shape = [2, 2];
+      else if (b.blockType === "WIDE_VERTICAL") shape = [2, 1];
+      else if (b.blockType === "WIDE_HORIZONTAL") shape = [1, 2];
+      else shape = [1, 1];
+
+      return {
+        shape: shape,
+        position: [b.pos.y, b.pos.x]
+      };
+    });
+
+    const options = {
+      boardSize: [5, 4],
+      escapePoint: [3, 1],
+      blocks: blocosFormatadosParaSolver,
+      useMirror: true
+    };
+
+try {
+      const resultado = solver.solve(options);
+      if (resultado && resultado.length > 0) {
+        faseValida = true;
+        novoPuzzle = {
+          level: levelAtual,
+          mini: 100,
+          blocks: blocosParaGerar
+        };
+
+        // 1. Carrega visualmente os blocos no tabuleiro (Importante!)
+        carregarBlocosDoJson(novoPuzzle); 
+
+        // 2. Salva para o botão "Reiniciar"
+        savedPositions = JSON.parse(JSON.stringify(novoPuzzle.blocks));
+
+        // 3. Reseta os checkboxes de espelhamento
+        document.getElementById("mirror-h").checked = false;
+        document.getElementById("mirror-v").checked = false;
+
+        // 4. Mapeia e Resolve a nova fase
+        if (typeof mapearEstadoInicial === "function") {
+            mapearEstadoInicial();
+            resolver(); // Isso gera o currentSolutionSteps
+            
+            // 5. Atualiza o painel Fullscreen se estiver ativo
+            setTimeout(() => {
+                if (document.body.classList.contains('fullscreen-active')) {
+                    criarOuAtualizarPainelFullscreen();
+                    sincronizarInputsSolucao(); // Garante que os números batam
+                }
+            }, 200); 
+        }
+      }
+    } catch (e) {
+      console.error("Erro na tentativa de geração:", e);
+    }
+  }
+
+  // 3. Reseta o contador de movimentos (se você tiver essa variável global)
+  if (typeof moveCount !== 'undefined') {
+      moveCount = 0;
+      const moveDisplay = document.getElementById("move-count");
+      if (moveDisplay) moveDisplay.innerText = "0";
+  }
+
+  // 4. Importa a nova fase
+  carregarBlocosDoJson(novoPuzzle);
+  console.log(`Fase ${levelAtual} gerada e carregada com sucesso!`);
+}
+
+function importarJson() {
+  const input = document.getElementById("importarArquivo");
+
+  // Resetar o valor do campo de entrada de arquivo
+  input.value = ""; 
+  
+  input.click();
+
+  input.onchange = async function () {
+  clearBoard()
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const json = JSON.parse(e.target.result);
+        carregarBlocosDoJson(json);
+		savePositions();
+		  fecharSolucao();
+		  resolver();
+		  criarOuAtualizarPainelFullscreen();
+      } catch (err) {
+        alert("Erro ao ler o arquivo JSON.");
+        console.error(err);
+      }
+    };
+    reader.readAsText(file);
+  };
+}
+
+function carregarBlocosDoJson(json) {
+  const blockTypeToConfig = {
+    LARGE: { type: "red" },
+    WIDE_VERTICAL: { type: "green" },
+    WIDE_HORIZONTAL: { type: "blue" },
+    SMALL: { type: "yellow" }
+  };
+
+  stopGame(); // Limpa tabuleiro
+  clearBoard();
+
+  const blocks = json.blocks || [];
+
+  blocks.forEach(block => {
+    const config = blockTypeToConfig[block.blockType];
+    if (!config) return;
+
+    const piece = createPieceOnBoard(config.type);
+
+    const col = block.pos.x;
+    const row = block.pos.y;
+
+    let w = 1, h = 1;
+    switch (config.type) {
+      case "red": w = 2; h = 2; break;
+      case "blue": w = 2; h = 1; break;
+      case "green": w = 1; h = 2; break;
+      case "yellow": w = 1; h = 1; break;
+    }
+	
+	// --- CHAME A FUNÇÃO AQUI ---
+    aplicarEstiloPeca(piece, w, h);
+    // ---------------------------
+
+    for (let r = 0; r < h; r++) {
+      for (let c = 0; c < w; c++) {
+        grid[row + r][col + c] = piece;
+      }
+    }
+
+    piece.style.left = col * STEP + BOARD_PADDING + "px";
+    piece.style.top = row * STEP + BOARD_PADDING + "px";
+
+    board.appendChild(piece);
+  });
+  
+  pieceCounts.red = 1;
+pieceCounts.blue = 7;
+pieceCounts.green = 7;
+pieceCounts.yellow = 14;
+
+  // Subtrai as peças que já foram colocadas
+blocks.forEach(block => {
+  switch (block.blockType) {
+    case "LARGE":
+      pieceCounts.red--;
+      break;
+    case "WIDE_HORIZONTAL":
+      pieceCounts.blue--;
+      break;
+    case "WIDE_VERTICAL":
+      pieceCounts.green--;
+      break;
+    case "SMALL":
+      pieceCounts.yellow--;
+      break;
+  }
+});
+
+  updateSelectablePieces();
+  //document.getElementById("level-input").value = String(json.level || 1).padStart(3, "0");
+}
+
+
+
+
+
+	function clearBoard() {
+	
+	pieceCounts.red = 1;
+pieceCounts.blue = 7;
+pieceCounts.green = 7;
+pieceCounts.yellow = 14;
+
+	document.getElementById("mirror-h").checked = false;
+document.getElementById("mirror-v").checked = false;
+
+	stopGame()
+	createSelectablePieces();
+  // Limpa a grid (matriz)
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      grid[r][c] = null;
+    }
+  }
+  // Remove todas as peças do DOM
+  document.querySelectorAll(".piece").forEach(p => p.remove());
+ 
+
+
+  // Opcional: limpa seleção
+  selectedPieceType = null;
+  deselectExistingPiece();
+  document.querySelectorAll(".select-piece").forEach(div => div.classList.remove("selected"));
+
+  
+  
+}
+
+document.getElementById("btnClearBoard").addEventListener("click", clearBoard);
+
+
+function exportarParaJson() {
+  const seen = new Set();
+  const blocks = [];
+  
+  	  if (!isRedPieceOnBoard()) {
+    alert("⚠️ Você precisa colocar a peça vermelha primeiro!");
+    return;
+  }
+  
+  
+  if (!hasAtLeastTwoEmptyCells()) {
+    alert("⚠️ Você precisa deixar dois espaços livres no tabuleiro!");
+    return;
+  }
+  
+    if (isRedPieceInVictoryPosition()) {
+    alert("Puzzle já solucionado, a peça vermelha já está na posição!");
+    return;
+  }
+
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const piece = grid[r][c];
+      if (piece && !seen.has(piece)) {
+        seen.add(piece);
+
+        let blockType;
+        switch (piece.dataset.type) {
+          case "red":
+            blockType = "LARGE";
+            break;
+          case "blue":
+            blockType = "WIDE_HORIZONTAL";
+            break;
+          case "green":
+            blockType = "WIDE_VERTICAL";
+            break;
+          case "yellow":
+            blockType = "SMALL";
+            break;
+          default:
+            continue;
+        }
+
+        blocks.push({
+          pos: { x: c, y: r },
+          blockType: blockType
+        });
+      }
+    }
+  }
+
+  const level = parseInt(document.getElementById("level-input").value) || 1;
+
+  const output = {
+    level: level,
+    mini: 100,
+    blocks: blocks
+  };
+
+  const jsonStr = JSON.stringify(output, null, 2);
+
+  // Baixar como arquivo
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `level_${String(level).padStart(3, '0')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
+function savePositions() {
+  savedPositions = [];
+  const seen = new Set();
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const piece = grid[r][c];
+      if (piece && !seen.has(piece)) {
+        seen.add(piece);
+        
+        // Converte o tipo da peça HTML para o formato que o JSON espera
+        let blockType = "";
+        switch (piece.dataset.type) {
+          case "red": blockType = "LARGE"; break;
+          case "blue": blockType = "WIDE_HORIZONTAL"; break;
+          case "green": blockType = "WIDE_VERTICAL"; break;
+          case "yellow": blockType = "SMALL"; break;
+        }
+
+        savedPositions.push({
+          blockType: blockType,
+          pos: {
+            x: c, // Coluna é o X
+            y: r  // Linha é o Y
+          }
+        });
+      }
+    }
+  }
+}
+
+let MAX_LEVEL = 1; // Começa com 1 por segurança
+const MIN_LEVEL = 1;
+
+// Função que busca o total de arquivos no servidor
+async function fetchLevelsCount() {
+    try {
+        const response = await fetch('/api/max-levels');
+        const data = await response.json();
+        MAX_LEVEL = data.total;
+        console.log("Máximo de níveis carregado:", MAX_LEVEL);
+    } catch (err) {
+        console.error("Erro ao carregar contagem de níveis:", err);
+    }
+}
+
+// Executa a função assim que o script carregar
+fetchLevelsCount();
+
+let currentLevel = 1;
+
+const inputLevel = document.getElementById("level-input");
+const btnPrev = document.getElementById("prev-level");
+const btnNext = document.getElementById("next-level");
+
+
+
+// Evento do input (ao apertar Enter ou ao perder foco)
+inputLevel.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const val = parseInt(inputLevel.value);
+    if (!isNaN(val)) {
+      confirmarNivel() 
+    } else {
+      inputLevel.value = String(currentLevel).padStart(3, "0");
+    }
+  }
+});
+
+inputLevel.addEventListener("blur", () => {
+  const val = parseInt(inputLevel.value);
+  if (!isNaN(val)) {
+    loadLevel(val);
+  } else {
+    inputLevel.value = currentLevel;
+  }
+});
+
+
+  // Carrega a fase 1 assim que a página abrir
+window.addEventListener("load", async () => {
+    // Basta chamar o loadLevel. O salvamento já ocorre lá dentro automaticamente.
+    await loadLevel("001", 1); 
+    
+    // Opcional: apenas para debug
+    setTimeout(() => {
+        console.log("Verificação de savedPositions:", savedPositions);
+    }, 500);
+});
+  
+async function generateRandomPuzzle(level) {
+
+fecharSolucao();
+
+  if (level === undefined || level === null) {
+    // Se não passou parâmetro, gera um número aleatório entre 1 e 500
+    level = Math.floor(Math.random() * 511) + 1;
+	currentLevel = level
+	inputLevel.value = String(level).padStart(3, "0");
+	updateSelectedThumbnail(currentLevel);
+	
+	
+  }
+  
+  
+  // Limpa grid e remove peças
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      grid[r][c] = null;
+    }
+  }
+  document.querySelectorAll(".piece").forEach(p => p.remove());
+
+  // Reseta quantidades
+  pieceCounts.red = 1;
+  pieceCounts.blue = 7;
+  pieceCounts.green = 7;
+  pieceCounts.yellow = 14;
+
+  selectedPieceType = null;
+  deselectExistingPiece();
+  document.querySelectorAll(".select-piece").forEach(div => div.classList.remove("selected"));
+
+  const filePath = `levels/${String(level).padStart(3, '0')}.json?nocache=${Date.now()}`;
+
+  const blockTypeToConfig = {
+    LARGE: { type: "red" },           // Peça vermelha 2x2
+    WIDE_VERTICAL: { type: "green" },  // Verde vertical 1x2
+    WIDE_HORIZONTAL: { type: "blue" },// Azul horizontal 2x1
+    SMALL: { type: "yellow" }         // Amarela 1x1
+  };
+
+  try {
+    const res = await fetch(filePath);
+    const json = await res.json();
+    const blocks = json.blocks;
+
+    stopGame();
+
+    blocks.forEach(block => {
+      const config = blockTypeToConfig[block.blockType];
+      if (!config) return;
+
+      const piece = createPieceOnBoard(config.type);
+
+      const col = block.pos.x;
+      const row = block.pos.y;
+
+      let w = 1, h = 1;
+      switch (config.type) {
+        case "red": w = 2; h = 2; break;
+        case "blue": w = 2; h = 1; break;
+        case "green": w = 1; h = 2; break;
+        case "yellow": w = 1; h = 1; break;
+      }
+
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          grid[row + r][col + c] = piece;
+        }
+      }
+
+      piece.style.left = col * STEP + BOARD_PADDING + "px";
+      piece.style.top = row * STEP + BOARD_PADDING + "px";
+
+      board.appendChild(piece);
+    });
+
+
+// Atualiza contagem de peças após carregar fase aleatória
+pieceCounts.red = 1;
+pieceCounts.blue = 7;
+pieceCounts.green = 7;
+pieceCounts.yellow = 14;
+
+blocks.forEach(block => {
+  switch (block.blockType) {
+    case "LARGE": pieceCounts.red--; break;
+    case "WIDE_HORIZONTAL": pieceCounts.blue--; break;
+    case "WIDE_VERTICAL": pieceCounts.green--; break;
+    case "SMALL": pieceCounts.yellow--; break;
+  }
+});
+
+    updateSelectablePieces();
+
+  } catch (err) {
+    ///console.error("Erro ao carregar fase:", err);
+    ///alert("Falha ao carregar a fase " + level);
+  }
+  
+  	resolver()
+criarOuAtualizarPainelFullscreen();
+  savePositions();
+}
+
+
+// Função para verificar se o puzzle é solucionável
+function isSolvable() {
+  // Vamos começar verificando a posição de vitória da peça vermelha.
+  // A vitória ocorre quando a peça vermelha ocupa as células: (3,1), (3,2), (4,1), (4,2)
+  if (isRedPieceInVictoryPosition()) {
+    return true;
+  }
+
+  // Caso contrário, tentamos resolver o puzzle com uma busca em largura (BFS)
+  const queue = [{ grid: deepCopyGrid(grid), moves: 0 }];
+  const visited = new Set();
+
+  while (queue.length > 0) {
+    const { grid: currentGrid, moves } = queue.shift();
+
+    // Se a peça vermelha estiver na posição de vitória, retorna verdadeiro
+    if (isRedPieceInVictoryPosition()) {
+      return true;
+    }
+
+    // Registra o estado atual como visitado
+    const gridString = gridToString(currentGrid);
+    if (visited.has(gridString)) continue;
+    visited.add(gridString);
+
+    // Tenta mover as peças nas quatro direções possíveis: cima, baixo, esquerda, direita
+    const directions = [
+      { dx: 0, dy: -1 }, // cima
+      { dx: 0, dy: 1 },  // baixo
+      { dx: -1, dy: 0 }, // esquerda
+      { dx: 1, dy: 0 },  // direita
+    ];
+
+    // Tenta mover todas as peças conectadas
+    for (const direction of directions) {
+      const group = getMovableGroup(selectedExistingPiece, direction.dx, direction.dy);
+      if (canMoveGroup(group, direction.dx, direction.dy)) {
+        const newGrid = moveGroupFixed([...group], direction.dx, direction.dy); // Move as peças
+        queue.push({ grid: newGrid, moves: moves + 1 });
+      }
+    }
+  }
+
+  return false; // Se não encontrar uma solução
+}
+
+
+// Função para copiar o estado atual do grid
+function deepCopyGrid(originalGrid) {
+  return originalGrid.map(row => row.slice());
+}
+
+// Função para converter o grid em uma string para comparar e evitar ciclos
+function gridToString(grid) {
+  return grid.map(row => row.map(piece => piece ? piece.dataset.type : null).join(",")).join(";");
+}
+
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function randomChoice(array) {
+  if (!array.length) return null;
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function canPlace(type, row, col) {
+  let w = 1, h = 1;
+  if (type === "red") w = h = 2;
+  else if (type === "blue") { w = 2; h = 1; }
+  else if (type === "green") { w = 1; h = 2; }
+  else if (type === "yellow") { w = h = 1; }
+
+  if (row + h > ROWS || col + w > COLS) return false;
+
+  for (let r = 0; r < h; r++) {
+    for (let c = 0; c < w; c++) {
+      if (grid[row + r][col + c]) return false;
+    }
+  }
+  return true;
+}
+
+function placePieceAt(piece, type, row, col) {
+  let w = 1, h = 1;
+  if (type === "red") w = h = 2;
+  else if (type === "blue") { w = 2; h = 1; }
+  else if (type === "green") { w = 1; h = 2; }
+  else if (type === "yellow") { w = h = 1; }
+
+  for (let r = 0; r < h; r++) {
+    for (let c = 0; c < w; c++) {
+      grid[row + r][col + c] = piece;
+    }
+  }
+
+  piece.style.left = col * STEP + BOARD_PADDING + "px";
+  piece.style.top = row * STEP + BOARD_PADDING + "px";
+  board.appendChild(piece);
+}
+
+
+
+
+function restorePositions() {
+    // Verifica se existem posições salvas para evitar o erro de 'undefined'
+    if (!savedPositions) {
+        console.warn("Nenhuma posição salva para reiniciar.");
+        return;
+    }
+	
+	document.getElementById("mirror-h").checked = false;
+document.getElementById("mirror-v").checked = false;
+
+    // Para evitar o erro NaN, limpamos o estado atual e recarregamos do salvo
+    fecharSolucao(); // Limpa setas/soluções visuais
+    
+    // Chama a função de montagem passando o objeto no formato esperado
+    carregarBlocosDoJson({ blocks: savedPositions });
+    
+    // Reseta os contadores visuais
+    moves = 0;
+	segundos = 0;
+    if(document.getElementById("moves")) {
+        document.getElementById("moves").innerText = "0";
+    }
+	if (document.getElementById("timer")) {
+        document.getElementById("timer").innerText = "00:00:00";
+    }
+    
+    // Re-mapeia para o resolvedor reconhecer a nova posição
+    mapearEstadoInicial();
+}
+
+	
+	
+    // Grid para rastrear peças no tabuleiro
+    const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    let selectedPieceType = null; // tipo selecionado pra colocar
+    let selectedExistingPiece = null; // peça já colocada selecionada pra mover
+    let isGameStarted = false;
+    let timer = 0;
+    let moves = 0;
+    let interval = null;
+	let mouseDownStartedGame = false;
+	
+	//mover as peças usando arrasto
+	let draggingPiece = null; 
+	let dragStartX = 0;
+	let dragStartY = 0;
+	let originalMouseX = 0;
+	let originalMouseY = 0;
+
+    const pieceCounts = {
+      red: 1,
+      blue: 7,
+      green: 7,
+      yellow: 10
+    };
+	
+    function resetPage() {
+      location.reload();
+    }
+	
+	function isRedPieceOnBoard() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const piece = grid[r][c];
+      if (piece && piece.dataset.type === "red") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+    // Criar células do tabuleiro e configurar clique
+    function createCells() {
+      board.innerHTML = "";
+      for (let i = 0; i < ROWS * COLS; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = i;
+		
+		   const row = Math.floor(i / COLS);
+    const col = i % COLS;
+
+    // Adiciona classe highlight nas células (3,1), (3,2), (4,1), (4,2)
+    if (
+      (row === 3 && (col === 1 || col === 2)) || 
+      (row === 4 && (col === 1 || col === 2))
+    ) {
+      cell.classList.add("highlight");
+    }
+
+        cell.addEventListener("click", () => {
+		
+		  if (selectedPieceType === "remove") {
+    const piece = grid[r][c];
+    if (piece) {
+      removePiece(piece);
+      return; // para aqui e não tenta colocar peça
+    }
+    return; // evita colocar peça em célula vazia com X
+  }
+  
+          if (!isGameStarted) {
+            if (selectedPieceType) {
+              placePieceOnBoard(selectedPieceType, cell);
+            } else if (selectedExistingPiece) {
+              moveSelectedPieceToCell(cell);
+            }
+          }
+        });
+
+        board.appendChild(cell);
+      }
+    }
+	
+	function createRemoveTool() {
+	
+  const div = document.createElement("div");
+  div.classList.add("select-piece", "remove-select");
+  div.dataset.type = "remove";
+
+  div.addEventListener("click", () => {
+    selectedPieceType = "remove";
+    deselectExistingPiece();
+    document.querySelectorAll(".select-piece").forEach(el =>
+      el.classList.toggle("selected", el === div)
+    );
+  });
+
+  piecesContainer.appendChild(div);
+}
+
+    // Cria as peças para seleção do lado direito
+    function createSelectablePieces() {
+      piecesContainer.innerHTML = "";
+
+      function createSelectPiece(type, className) {
+        const div = document.createElement("div");
+        div.classList.add("select-piece", className);
+        div.dataset.type = type;
+
+        const badge = document.createElement("div");
+        badge.classList.add("count-badge");
+        badge.textContent = pieceCounts[type];
+        div.appendChild(badge);
+
+        div.addEventListener("click", () => {
+          if (pieceCounts[type] === 0) return;
+          selectPieceType(type);
+          deselectExistingPiece();
+        });
+
+        piecesContainer.appendChild(div);
+      }
+
+      createSelectPiece("red", "red-select");
+      createSelectPiece("blue", "blue-select");
+      createSelectPiece("green", "green-select");
+      createSelectPiece("yellow", "yellow-select");
+	  createRemoveTool();
+    }
+
+
+function updateSelectablePieces() {
+  document.querySelectorAll(".select-piece").forEach(div => {
+    const type = div.dataset.type;
+    const badge = div.querySelector(".count-badge");
+
+    // Só atualiza se existir badge e tipo válido (evita erro no botão "remover")
+    if (!badge || !pieceCounts.hasOwnProperty(type)) return;
+
+    badge.textContent = pieceCounts[type];
+
+    if (pieceCounts[type] === 0) {
+      div.classList.add("disabled");
+      if (selectedPieceType === type) selectedPieceType = null;
+      div.classList.remove("selected");
+    } else {
+      div.classList.remove("disabled");
+    }
+  });
+}
+
+
+    // Seleciona tipo de peça para posicionar
+    function selectPieceType(type) {
+      if (selectedPieceType === type) {
+        selectedPieceType = null;
+      } else {
+        selectedPieceType = type;
+      }
+      document.querySelectorAll(".select-piece").forEach(div => {
+        div.classList.toggle("selected", div.dataset.type === selectedPieceType);
+      });
+    }
+	
+	function hasAtLeastTwoEmptyCells() {
+  let emptyCount = 0;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (grid[r][c] === null) {
+        emptyCount++;
+      }
+    }
+  }
+  
+  if (emptyCount > 2) return false;
+  if (emptyCount < 2) return false;
+  if (emptyCount === 2) return true;
+}
+	
+	function checkVictory() {
+      for (let r = 0; r < ROWS - 1; r++) {
+        for (let c = 0; c < COLS - 1; c++) {
+          const p1 = grid[r][c];
+          const p2 = grid[r][c + 1];
+          const p3 = grid[r + 1][c];
+          const p4 = grid[r + 1][c + 1];
+          if (p1 && p1 === p2 && p1 === p3 && p1 === p4 && p1.dataset.type === "red") {
+            // Verificação corrigida: linha 4 e 5 = índices 3 e 4
+            if (r === 3 && c === 1) {
+              handleVictory();
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+function handleVictory() {
+  clearInterval(interval);
+  isGameStarted = false;
+
+  // Encontra a peça vermelha
+  let redPiece = null;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const piece = grid[r][c];
+      if (piece && piece.dataset.type === "red") {
+        redPiece = piece;
+        break;
+      }
+    }
+    if (redPiece) break;
+  }
+
+  if (!redPiece) return;
+
+  // Remove do grid atual
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (grid[r][c] === redPiece) {
+        grid[r][c] = null;
+      }
+    }
+  }
+
+  // Move visualmente para (3,1)
+  const targetRow = 3;
+  const targetCol = 1;
+  redPiece.style.left = targetCol * STEP + BOARD_PADDING + "px";
+  redPiece.style.top = targetRow * STEP + BOARD_PADDING + "px";
+
+  // Marca nova posição no grid
+  for (let r = 0; r < 2; r++) {
+    for (let c = 0; c < 2; c++) {
+      grid[targetRow + r][targetCol + c] = redPiece;
+    }
+  }
+
+  // Aguarda um pequeno tempo para mostrar a animação e só então exibe a mensagem
+setTimeout(() => {
+    // Pega a linguagem atual (PT, EN ou ES) a partir do botão de idioma
+    const currentLang = document.getElementById('btn-lang').innerText.trim();
+    
+    // Define as mensagens de vitória para cada idioma
+    const winMessages = {
+        PT: "🎉 Vitória! Você venceu.",
+        EN: "🎉 Victory! You won.",
+        ES: "🎉 ¡Victoria! Has ganado."
+    };
+
+    // Exibe o alerta na linguagem correta (ou PT como fallback)
+    alert(winMessages[currentLang] || winMessages.PT);
+	
+	  // 5. Lógica para passar de fase automaticamente
+    // Se currentLevel for 511, volta para 1, caso contrário soma 1
+    if (currentLevel >= 511) {
+        currentLevel = 1;
+    } else {
+        currentLevel++;
+    }
+
+    // 6. Sincroniza a interface (formata para "001", "002", etc.)
+    const paddedLevel = String(currentLevel).padStart(3, "0");
+    document.getElementById('level-input').value = paddedLevel;
+
+    // 7. Chama as suas funções existentes para carregar o novo nível e atualizar o seletor visual
+    updateSelectedThumbnail(currentLevel);
+    confirmarNivel();
+    
+    document.removeEventListener("keydown", handleMove);
+}, 600);
+
+
+  
+  stopchallenge();
+  
+}
+
+    // Cria peça no tabuleiro
+    function createPieceOnBoard(type) {
+      const div = document.createElement("div");
+      div.classList.add("piece", type);
+      div.dataset.type = type;
+
+      switch(type) {
+        case "red":
+          div.style.width = "122px";
+          div.style.height = "122px";
+          break;
+        case "blue":
+          div.style.width = "124px";
+          div.style.height = "62px";
+          break;
+        case "green":
+          div.style.width = "62px";
+          div.style.height = "124px";
+          break;
+        case "yellow":
+          div.style.width = "62px";
+          div.style.height = "62px";
+          break;
+      }
+
+      div.style.position = "absolute";
+
+// Clique esquerdo: seleciona ou remove se for o botão de X
+div.addEventListener("click", e => {
+  e.stopPropagation();
+  fecharSolucao();
+  if (selectedPieceType === "remove") {
+    removePiece(div);
+  } else {
+    selectExistingPiece(div);
+  }
+});
+
+// Clique direito: remove diretamente, sem precisar estar selecionada
+div.addEventListener("contextmenu", e => {
+  e.preventDefault();
+  if (!isGameStarted) {
+    removePiece(div);
+  }
+});
+
+div.addEventListener("dblclick", (e) => {
+  //if (div.dataset.type !== "red") return;
+  e.stopPropagation();
+  if (!isGameStarted) {
+    selectExistingPiece(div); // opcional
+    startGame();
+  }
+});
+
+//25072025 0805 arrastar peças inicio 
+div.addEventListener("mousedown", (e) => {
+  if (!isGameStarted) return;
+
+  draggingPiece = div;
+  originalMouseX = e.clientX;
+  originalMouseY = e.clientY;
+  dragStartX = parseInt(div.style.left);
+  dragStartY = parseInt(div.style.top);
+
+  selectExistingPiece(div); // seleciona
+});
+
+let lastMoveDir = null;
+
+document.addEventListener("mousemove", (e) => {
+  if (!draggingPiece || !isGameStarted) return;
+
+  const dx = e.clientX - originalMouseX;
+  const dy = e.clientY - originalMouseY;
+
+  let dirX = 0, dirY = 0;
+  const limiar = 30;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > limiar) dirX = 1;
+    else if (dx < -limiar) dirX = -1;
+  } else {
+    if (dy > limiar) dirY = 1;
+    else if (dy < -limiar) dirY = -1;
+  }
+
+  const dirKey = `${dirX},${dirY}`;
+
+  if ((dirX !== 0 || dirY !== 0) && dirKey !== lastMoveDir) {
+    const group = getMovableGroup(draggingPiece, dirX, dirY);
+
+    if (canMoveGroup(group, dirX, dirY)) {
+      moveGroupFixed(group, dirX, dirY);
+      moves++;
+      movesDisplay.textContent = moves;
+      checkVictory();
+      originalMouseX = e.clientX; // reseta origem para detectar próximo passo
+      originalMouseY = e.clientY;
+      lastMoveDir = dirKey;
+    }
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  draggingPiece = null;
+  lastMoveDir = null;
+});
+
+
+
+function moveGroupWithAnimation(group, dx, dy) {
+  const positions = new Map();
+
+  // Salva posições antigas
+  for (const piece of group) {
+    const pos = findPiecePosition(piece);
+    positions.set(piece, pos);
+  }
+
+  // Descobre quantas células pode mover
+  const maxSteps = maxStepsInDirection(group, dx, dy);
+  if (maxSteps === 0) return;
+
+  // Limpa antigas posições
+  for (const piece of group) {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] === piece) {
+          grid[r][c] = null;
+        }
+      }
+    }
+  }
+
+  // Move visualmente e atualiza grid
+  for (const piece of group) {
+    const pos = positions.get(piece);
+    const w = Math.round(piece.offsetWidth / STEP);
+    const h = Math.round(piece.offsetHeight / STEP);
+    const newRow = pos.row + dy * maxSteps;
+    const newCol = pos.col + dx * maxSteps;
+
+    for (let r = 0; r < h; r++) {
+      for (let c = 0; c < w; c++) {
+        grid[newRow + r][newCol + c] = piece;
+      }
+    }
+
+    piece.style.transition = `top ${0.1 * maxSteps}s, left ${0.1 * maxSteps}s`;
+    piece.style.left = newCol * STEP + BOARD_PADDING + "px";
+    piece.style.top = newRow * STEP + BOARD_PADDING + "px";
+
+    setTimeout(() => {
+      piece.style.transition = "";
+    }, 120 * maxSteps);
+  }
+}
+
+
+
+//fim
+
+
+      return div;
+    }
+
+    // Seleciona peça existente no tabuleiro
+    function selectExistingPiece(piece) {
+      if (selectedExistingPiece) {
+        selectedExistingPiece.classList.remove("selected");
+      }
+      selectedExistingPiece = piece;
+      selectedExistingPiece.classList.add("selected");
+
+      // Deseleciona tipo para colocar
+      selectedPieceType = null;
+      document.querySelectorAll(".select-piece").forEach(div => div.classList.remove("selected"));
+    }
+
+    function deselectExistingPiece() {
+      if (selectedExistingPiece) {
+        selectedExistingPiece.classList.remove("selected");
+        selectedExistingPiece = null;
+      }
+    }
+	
+	
+	function maxStepsInDirection(group, dx, dy) {
+  let steps = 0;
+  while (true) {
+    steps++;
+    if (!canMoveGroup(group, dx * steps, dy * steps)) {
+      return steps - 1;
+    }
+  }
+}
+
+
+function removePiece(piece) {
+if (isGameStarted) return;
+  if (!piece || !piece.classList.contains("piece")) return; // só remove se for uma peça válida
+
+  const type = piece.dataset.type;
+  
+  fecharSolucao();
+
+  // Garante que a peça está no grid antes de remover
+  let found = false;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (grid[r][c] === piece) {
+        grid[r][c] = null;
+        found = true;
+      }
+    }
+  }
+
+  if (found) {
+    piece.remove();
+
+    if (type !== "remove") {
+      pieceCounts[type]++;
+      updateSelectablePieces();
+    }
+  }
+}
+
+
+    // Posiciona peça na célula clicada
+    function placePieceOnBoard(type, cell) {
+      if (!type) return;
+
+      const index = parseInt(cell.dataset.index);
+      let col = index % COLS;
+      let row = Math.floor(index / COLS);
+
+      let w = 1, h = 1;
+      switch(type) {
+        case "red":
+          w = 2; h = 2; break;
+        case "blue":
+          w = 2; h = 1; break;
+        case "green":
+          w = 1; h = 2; break;
+        case "yellow":
+          w = 1; h = 1; break;
+      }
+
+      if (col + w > COLS) col = COLS - w;
+      if (row + h > ROWS) row = ROWS - h;
+
+      // Verifica colisões
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          if (grid[row + r][col + c]) {
+            return; // não posiciona se colidir
+          }
+        }
+      }
+
+      // Cria peça
+      const newPiece = createPieceOnBoard(type);
+
+      // Marca grid
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          grid[row + r][col + c] = newPiece;
+        }
+      }
+
+      newPiece.style.left = col * STEP + BOARD_PADDING + "px";
+      newPiece.style.top = row * STEP + BOARD_PADDING + "px";
+      board.appendChild(newPiece);
+
+// Atualiza contagem
+pieceCounts[type]--;
+updateSelectablePieces();
+
+// Deseleciona tipo só se acabou
+if (pieceCounts[type] === 0) {
+  selectedPieceType = null;
+  document.querySelectorAll(".select-piece").forEach(div => div.classList.remove("selected"));
+} else {
+  // Mantém o tipo selecionado visualmente
+  document.querySelectorAll(".select-piece").forEach(div => {
+    div.classList.toggle("selected", div.dataset.type === type);
+  });
+}
+
+// Deseleciona peça já existente (caso tenha sido movida)
+deselectExistingPiece();
+    }
+
+    // Mover peça selecionada para célula clicada (antes do jogo)
+    function moveSelectedPieceToCell(cell) {
+      if (!selectedExistingPiece) return;
+
+      const index = parseInt(cell.dataset.index);
+      let newCol = index % COLS;
+      let newRow = Math.floor(index / COLS);
+
+      // Dimensões peça
+      const w = Math.round(selectedExistingPiece.offsetWidth / STEP);
+      const h = Math.round(selectedExistingPiece.offsetHeight / STEP);
+
+      if (newCol + w > COLS) newCol = COLS - w;
+      if (newRow + h > ROWS) newRow = ROWS - h;
+
+      // Verifica colisões (ignora a própria peça)
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          const occupying = grid[newRow + r][newCol + c];
+          if (occupying && occupying !== selectedExistingPiece) {
+            return; // não pode mover pra cá
+          }
+        }
+      }
+
+      // Limpa posição antiga da peça no grid
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] === selectedExistingPiece) {
+            grid[r][c] = null;
+          }
+        }
+      }
+
+      // Marca nova posição
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          grid[newRow + r][newCol + c] = selectedExistingPiece;
+        }
+      }
+
+      // Atualiza posição visual
+      selectedExistingPiece.style.left = newCol * STEP + BOARD_PADDING + "px";
+      selectedExistingPiece.style.top = newRow * STEP + BOARD_PADDING + "px";
+    }
+
+    // Função para formatar tempo do timer
+    function formatTime(seconds) {
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      return [hrs, mins, secs].map(v => v.toString().padStart(2, "0")).join(":");
+    }
+	
+function isRedPieceInVictoryPosition() {
+  // Procuramos a peça vermelha no grid
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const piece = grid[r][c];
+      // Verifica se a peça na célula é a vermelha
+      if (piece && piece.dataset.type === "red") {
+        // Para o Giiker/Klotski, a vitória é a peça 2x2 no centro inferior:
+        // Linha 3 (quarta linha) e Coluna 1 (segunda coluna)
+        return (r === 3 && c === 1);
+      }
+    }
+  }
+  return false;
+}
+
+    // Iniciar o jogo: timer, reset contagem movimentos e habilitar controle teclado
+    function startGame() {
+      if (isGameStarted) return;
+	  
+	  if (!isRedPieceOnBoard()) {
+    alert("⚠️ Você precisa colocar a peça vermelha para iniciar o jogo!");
+    return;
+  }
+  
+  
+  if (!hasAtLeastTwoEmptyCells()) {
+    alert("⚠️ Você precisa deixar dois espaços livres no tabuleiro para iniciar o jogo!");
+    return;
+  }
+  
+  
+  if (isRedPieceInVictoryPosition()) {
+    alert("🏆 A peça vermelha já está na posição de vitória!");
+	stopchallenge();
+    return;
+  }
+		fecharSolucao();
+		// 1. Captura as peças atuais e salva na variável global
+      isGameStarted = true;
+      timer = 0;
+      moves = 0;
+      timerDisplay.textContent = formatTime(timer);
+      movesDisplay.textContent = moves;
+      selectedPieceType = null;
+      //deselectExistingPiece();
+      document.querySelectorAll(".select-piece").forEach(div => div.classList.remove("selected"));
+
+      interval = setInterval(() => {
+        timer++;
+        timerDisplay.textContent = formatTime(timer);
+      }, 1000);
+
+      document.addEventListener("keydown", handleMove);
+	  
+	  savePositions();
+    }
+
+    // Parar o jogo: limpa timer, contagem, grid e peças
+    function stopGame() {
+      if (!isGameStarted) return;
+      isGameStarted = false;
+      clearInterval(interval);
+      timer = 0;
+      moves = 0;
+      timerDisplay.textContent = formatTime(timer);
+      movesDisplay.textContent = moves;
+	  
+	  stopchallenge();
+	  resolver();
+	  criarOuAtualizarPainelFullscreen();
+
+      // Limpa grid e remove peças
+	  /*
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          grid[r][c] = null;
+        }
+      }
+      document.querySelectorAll(".piece").forEach(p => p.remove());
+	  */
+
+
+      selectedPieceType = null;
+      deselectExistingPiece();
+      document.querySelectorAll(".select-piece").forEach(div => div.classList.remove("selected"));
+
+      document.removeEventListener("keydown", handleMove);
+    }
+
+    // Helper para encontrar posição da peça no grid
+    function findPiecePosition(piece) {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] === piece) {
+            return { row: r, col: c };
+          }
+        }
+      }
+      return null;
+    }
+
+    // Função para verificar se uma peça pode mover na direção (dx, dy)
+    // considerando que deve haver espaço e sem colisão com peças não no grupo
+    function canMoveGroup(group, dx, dy) {
+      for (const piece of group) {
+        const pos = findPiecePosition(piece);
+        if (!pos) return false;
+
+        const w = Math.round(piece.offsetWidth / STEP);
+        const h = Math.round(piece.offsetHeight / STEP);
+
+        let newRow = pos.row + dy;
+        let newCol = pos.col + dx;
+
+        if (newRow < 0 || newCol < 0 || newRow + h > ROWS || newCol + w > COLS) {
+          return false; // Sai do tabuleiro
+        }
+
+        // Verifica colisões: cada célula para onde a peça iria deve estar vazia
+        // ou ocupada por outra peça do grupo
+        for (let r = 0; r < h; r++) {
+          for (let c = 0; c < w; c++) {
+            const cellPiece = grid[newRow + r][newCol + c];
+            if (cellPiece && !group.includes(cellPiece)) {
+              return false; // colisão com peça fora do grupo
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    // Busca o grupo de peças conectadas ao mover peça na direção (dx, dy)
+    // Começa pela peça inicial e adiciona peças adjacentes na direção do movimento
+    function getMovableGroup(startPiece, dx, dy) {
+      const group = [startPiece];
+      let added;
+
+      do {
+        added = false;
+        for (const piece of [...group]) {
+          const pos = findPiecePosition(piece);
+          if (!pos) continue;
+
+          const w = Math.round(piece.offsetWidth / STEP);
+          const h = Math.round(piece.offsetHeight / STEP);
+
+          // Varre células adjacentes na direção do movimento para encontrar peças conectadas
+          for (let r = 0; r < h; r++) {
+            for (let c = 0; c < w; c++) {
+              const nr = pos.row + r + dy;
+              const nc = pos.col + c + dx;
+              if (nr < 0 || nc < 0 || nr >= ROWS || nc >= COLS) continue;
+              const neighbor = grid[nr][nc];
+              if (neighbor && !group.includes(neighbor)) {
+                group.push(neighbor);
+                added = true;
+              }
+            }
+          }
+        }
+      } while (added);
+
+      return group;
+    }
+
+    // Mover todas peças do grupo na direção dx, dy
+    function moveGroup(group, dx, dy) {
+      // Primeiro limpa posições antigas no grid
+      for (const piece of group) {
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            if (grid[r][c] === piece) {
+              grid[r][c] = null;
+            }
+          }
+        }
+      }
+
+      // Atualiza posições novas no grid e estilos CSS
+      for (const piece of group) {
+        const pos = findPiecePosition(piece);
+        const w = Math.round(piece.offsetWidth / STEP);
+        const h = Math.round(piece.offsetHeight / STEP);
+
+        // Para calcular nova posição precisamos do antigo pos que já limpamos,
+        // então usamos a posição guardada em variável antes do clear (pos)
+        // Mas depois de limpar o grid, findPiecePosition retorna null,
+        // então vamos salvar as posições antes da limpeza.
+
+        // Solução: vamos modificar para salvar as posições antes da limpeza.
+
+        // Essa função será adaptada abaixo para salvar as posições em um mapa.
+      }
+    }
+
+    // Para facilitar, refazemos moveGroup para salvar posições antes e usar depois:
+function moveGroupFixed(group, dx, dy) {
+  const positions = new Map();
+  for (const piece of group) {
+    const pos = findPiecePosition(piece);
+    if (!pos) return;
+    positions.set(piece, pos);
+  }
+
+  // Limpa posições antigas
+  for (const piece of group) {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] === piece) {
+          grid[r][c] = null;
+        }
+      }
+    }
+  }
+
+  // Atualiza grid e anima visual
+  for (const piece of group) {
+    const pos = positions.get(piece);
+    const w = Math.round(piece.offsetWidth / STEP);
+    const h = Math.round(piece.offsetHeight / STEP);
+    const newRow = pos.row + dy;
+    const newCol = pos.col + dx;
+
+    for (let r = 0; r < h; r++) {
+      for (let c = 0; c < w; c++) {
+        grid[newRow + r][newCol + c] = piece;
+      }
+    }
+
+    // ⬇️ animação suave
+    piece.style.transition = "left 0.25s ease, top 0.25s ease";
+    piece.style.left = newCol * STEP + BOARD_PADDING + "px";
+    piece.style.top = newRow * STEP + BOARD_PADDING + "px";
+
+    // ⬇️ limpa a transição depois que terminar
+    setTimeout(() => {
+      piece.style.transition = "";
+    }, 300);
+  }
+}
+
+
+    // Handle teclado para mover peça selecionada (se jogo ativo)
+    function handleMove(e) {
+      if (!isGameStarted) return;
+      if (!selectedExistingPiece) return;
+
+      let dx = 0, dy = 0;
+      switch(e.key) {
+        case "ArrowUp": dy = -1; break;
+        case "ArrowDown": dy = 1; break;
+        case "ArrowLeft": dx = -1; break;
+        case "ArrowRight": dx = 1; break;
+        default: return;
+      }
+      e.preventDefault();
+
+      // Obtem grupo de peças para mover
+      const group = getMovableGroup(selectedExistingPiece, dx, dy);
+
+      // Verifica se pode mover todo o grupo
+      if (canMoveGroup(group, dx, dy)) {
+        moveGroupFixed(group, dx, dy);
+        moves++;
+        movesDisplay.textContent = moves;
+
+        // Depois de mover, verificar vitória
+        checkVictory();
+      }
+    }
+	
+document.addEventListener("keydown", (e) => {
+if(selectedExistingPiece){
+  const teclasSetas = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+  if (!teclasSetas.includes(e.key)) return;
+
+  if (!isGameStarted) {
+    startGame();
+    // Aqui, após iniciar o jogo, já executa o movimento 1x, e para a função aqui.
+    if (selectedExistingPiece) {
+      handleMove(e);
+    }
+    return;  // não deixa continuar para evitar movimento duplicado
+  }
+
+  // Se já iniciou o jogo, só faz o movimento normalmente
+  if (selectedExistingPiece) {
+    return;
+  }
+}});
+
+async function resolver() {
+  const solver = new Klotski();
+  if (typeof solver.init === 'function') solver.init();
+  criarOuAtualizarPainelFullscreen();
+  
+  // Garante que o motor de busca sabe onde as peças estão EXATAMENTE AGORA
+    mapearEstadoInicial(); 
+
+    // Se após mapear não houver peças, algo deu errado no carregamento
+    if (!pieces || pieces.length === 0) {
+        alert("Essa posição não tem solução!.");
+        return;
+    }
+
+  // 1. Captura as peças e garante que a VERMELHA é a primeira (essencial para o solver)
+  const piecesOnBoard = Array.from(document.querySelectorAll(".piece"));
+  piecesOnBoard.sort((a, b) => {
+    if (a.dataset.type === 'red') return -1;
+    if (b.dataset.type === 'red') return 1;
+    return 0;
+  });
+
+  const currentBlocks = piecesOnBoard.map((p, index) => {
+    const left = parseFloat(p.style.left);
+    const top = parseFloat(p.style.top);
+    
+    // Usamos o STEP (62) e o BOARD_PADDING (4) definidos no seu index.html
+    const col = Math.round((left - BOARD_PADDING) / STEP); 
+    const row = Math.round((top - BOARD_PADDING) / STEP);
+    
+    const w = Math.round(p.offsetWidth / 60);
+    const h = Math.round(p.offsetHeight / 60);
+    
+    return { 
+      shape: [h, w], 
+      position: [row, col], 
+      id: index,
+      type: p.dataset.type 
+    };
+  });
+
+  const options = {
+    boardSize: [5, 4],
+    escapePoint: [3, 1], // Obriga a peça 2x2 a ir para a linha 3, coluna 1
+    blocks: currentBlocks.map(b => ({ shape: b.shape, position: [...b.position] })),
+    useMirror: true
+  };
+
+  try {
+    const moves = solver.solve(options);
+    if (!moves || moves.length === 0) {
+      alert("Nenhuma solução encontrada.");
+      return;
+	  criarOuAtualizarPainelFullscreen()
+    }
+
+    currentSolutionSteps = [];
+    
+    // Função para gerar snapshot convertido para o formato do seu visualizador
+    const getBoardSnapshot = (blocks) => blocks.map(b => ({
+      blockType: getBlockTypeFromShape(b.shape),
+      pos: { x: b.position[1], y: b.position[0] }
+    }));
+
+    // CRUCIAL: Criar uma cópia profunda inicial
+    let workingBlocks = JSON.parse(JSON.stringify(currentBlocks));
+
+    // Passo 0
+    currentSolutionSteps.push({ level: 0, blocks: getBoardSnapshot(workingBlocks) });
+
+    const dirs = [{r:1, c:0}, {r:0, c:1}, {r:-1, c:0}, {r:0, c:-1}];
+
+    // 2. Simula os movimentos para criar a lista de passos
+    moves.forEach((move, i) => {
+      const block = workingBlocks[move.blockIdx];
+      const direction = dirs[move.dirIdx];
+      
+      block.position[0] += direction.r;
+      block.position[1] += direction.c;
+
+      // Guarda uma cópia INDEPENDENTE (snapshot) deste estado
+      currentSolutionSteps.push({
+        level: i + 1,
+        blocks: getBoardSnapshot(workingBlocks)
+      });
+    });
+
+    // 3. Atualiza interface
+    currentStepIndex = 0;
+    const totalSteps = currentSolutionSteps.length - 1;
+    document.getElementById("total-steps").textContent = totalSteps;
+    
+    const stepInput = document.getElementById("step-input");
+    if (stepInput) stepInput.value = 0;
+
+    showStep(0);
+    document.getElementById("solution-viewer").style.display = "block";
+    
+    console.log("Sucesso! Passos totais gerados:", totalSteps);
+	criarOuAtualizarPainelFullscreen();
+
+  } catch (e) {
+    console.error("Erro ao processar solução:", e);
+  }
+}
+
+// Certifique-se de que esta função auxiliar está presente
+function getBlockTypeFromShape(shape) {
+  const [h, w] = shape;
+  if (h === 2 && w === 2) return "LARGE";          // Vermelha
+  if (h === 2 && w === 1) return "WIDE_VERTICAL";   // Verde
+  if (h === 1 && w === 2) return "WIDE_HORIZONTAL"; // Azul
+  return "SMALL";                                   // Amarela
+}
+
+// Função auxiliar para converter shapes de volta para os nomes do seu JSON
+function getBlockTypeFromShape(shape) {
+    const [h, w] = shape;
+    if (h === 2 && w === 2) return "LARGE";
+    if (h === 2 && w === 1) return "WIDE_VERTICAL";
+    if (h === 1 && w === 2) return "WIDE_HORIZONTAL";
+    return "SMALL";
+}
+
+function fecharSolucao() {
+  const viewer = document.getElementById("solution-viewer");
+  if (viewer) {
+    viewer.style.display = "none"; // 👈 O ".style" é fundamental aqui
+  }
+  
+  // Limpa os dados para resetar o estado
+  currentSolutionSteps = [];
+  currentStepIndex = 0;
+  
+  const counter = document.getElementById("step-counter");
+  if (counter) counter.innerText = "0 / 0";
+}
+
+// Garanta que esta função auxiliar exista no seu código
+function getBlockTypeFromShape(shape) {
+  const [h, w] = shape;
+  if (h === 2 && w === 2) return "LARGE";
+  if (h === 2 && w === 1) return "WIDE_VERTICAL";
+  if (h === 1 && w === 2) return "WIDE_HORIZONTAL";
+  return "SMALL";
+}
+
+// Variáveis globais para controlar o estado da solução
+let currentSolutionSteps = []; 
+let currentStepIndex = 0;
+
+// Função para exibir um passo específico
+// Atualize a função showStep para lidar com o novo input
+function showStep(index) {
+  if (!currentSolutionSteps || index < 0 || index >= currentSolutionSteps.length) return;
+  
+  currentStepIndex = index;
+  const stepData = currentSolutionSteps[index];
+  
+  // Atualiza o tabuleiro (função já existente no seu código)
+  carregarBlocosDoJson(stepData);
+  
+  // Atualiza o valor do input e o total
+  const stepInput = document.getElementById("step-input");
+  const totalStepsSpan = document.getElementById("total-steps");
+  
+  if (stepInput) stepInput.value = index;
+  if (totalStepsSpan) totalStepsSpan.innerText = currentSolutionSteps.length - 1;
+}
+
+// Adicione este listener para detectar quando você aperta Enter no input
+document.addEventListener("DOMContentLoaded", () => {
+  const stepInput = document.getElementById("step-input");
+  
+  if (stepInput) {
+    stepInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        let targetStep = parseInt(stepInput.value);
+        const maxStep = currentSolutionSteps.length - 1;
+
+        // Validação: não pode ser menor que zero nem maior que o total
+        if (isNaN(targetStep) || targetStep < 0) targetStep = 0;
+        if (targetStep > maxStep) targetStep = maxStep;
+
+        showStep(targetStep);
+      }
+    });
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+    // Verifica se o foco está em algum dos inputs de passos
+    const stepInput = document.getElementById("step-input");
+    const fsStepInput = document.getElementById("fs-step-input");
+    const activeInput = document.activeElement;
+
+    if (e.key === "Enter" && (activeInput === stepInput || activeInput === fsStepInput)) {
+        let targetStep = parseInt(activeInput.value);
+        
+        // Verifica se existe uma solução carregada
+        if (typeof currentSolutionSteps !== 'undefined' && currentSolutionSteps.length > 0) {
+            const maxStep = currentSolutionSteps.length - 1;
+
+            // Validação de limites
+            if (isNaN(targetStep) || targetStep < 0) targetStep = 0;
+            if (targetStep > maxStep) targetStep = maxStep;
+
+            // Chama a função correta do seu projeto
+            goToStep(targetStep);
+            
+            // Sincroniza a interface e tira o foco
+            sincronizarInputsSolucao();
+            activeInput.blur();
+        }
+    }
+});
+
+// Função para o botão "Próximo"
+function nextStep() {
+  if (currentStepIndex < currentSolutionSteps.length - 1) {
+    showStep(currentStepIndex + 1);
+  }
+}
+
+function prevStep() {
+  if (currentStepIndex > 0) {
+    showStep(currentStepIndex - 1);
+  }
+}
+
+// Variáveis para controlar os intervalos do spamming do Solution Viewer
+let solutionNextInterval;
+let solutionPrevInterval;
+
+// Seleciona os botões do visualizador de solução
+// Nota: Adicione IDs aos botões no HTML ou use seletores de posição se preferir
+const btnNextStep = document.querySelector("#solution-viewer button:nth-of-type(3)"); // Botão ❯
+const btnPrevStep = document.querySelector("#solution-viewer button:nth-of-type(2)"); // Botão ❮
+
+// --- SPAMMING PARA NEXT STEP (❯) ---
+btnNextStep.addEventListener('mousedown', () => {
+    nextStep(); // Executa o primeiro clique imediatamente
+	criarOuAtualizarPainelFullscreen();
+    
+    solutionNextInterval = setTimeout(() => {
+        solutionNextInterval = setInterval(nextStep, 100); // Repete a cada 100ms
+		criarOuAtualizarPainelFullscreen();
+    }, 250); // Espera 250ms antes de começar o spam
+});
+
+const stopNextSpam = () => {
+    clearTimeout(solutionNextInterval);
+    clearInterval(solutionNextInterval);
+		criarOuAtualizarPainelFullscreen();
+};
+
+btnNextStep.addEventListener('mouseup', stopNextSpam);
+btnNextStep.addEventListener('mouseleave', stopNextSpam);
+
+// --- SPAMMING PARA PREV STEP (❮) ---
+btnPrevStep.addEventListener('mousedown', () => {
+    prevStep(); // Executa o primeiro clique imediatamente
+		criarOuAtualizarPainelFullscreen();
+    
+    solutionPrevInterval = setTimeout(() => {
+        solutionPrevInterval = setInterval(prevStep, 100); // Repete a cada 100ms
+			criarOuAtualizarPainelFullscreen();
+    }, 250); // Espera 250ms antes de começar o spam
+});
+
+const stopPrevSpam = () => {
+    clearTimeout(solutionPrevInterval);
+    clearInterval(solutionPrevInterval);
+		criarOuAtualizarPainelFullscreen();
+};
+
+btnPrevStep.addEventListener('mouseup', stopPrevSpam);
+btnPrevStep.addEventListener('mouseleave', stopPrevSpam);
+
+
+document.addEventListener("keydown", (e) => {
+  // ESPAÇO → inicia o jogo
+  if (e.code === "Space") {
+    if (!isGameStarted) {
+      startGame();
+      e.preventDefault();
+    }
+  }
+  
+  if (typeof currentSolutionSteps === 'undefined' || currentSolutionSteps.length === 0) return;
+
+    const key = e.key.toLowerCase();
+  
+if (key === 'q') {
+        // Para a reprodução automática (se estiver ativa) e volta ao passo 0
+        if (typeof stopSolution === 'function') stopSolution();
+        goToStep(0);
+        
+        // Sincroniza o input visual se estiveres no modo Fullscreen
+        if (typeof sincronizarInputsSolucao === 'function') sincronizarInputsSolucao();
+    } 
+    else if (key === 'e') {
+        // Para a reprodução automática e vai para o último passo
+        if (typeof stopSolution === 'function') stopSolution();
+        if (typeof goToLastStep === 'function') {
+            goToLastStep();
+        } else {
+            // Caso a função goToLastStep não esteja global, usa o índice máximo
+            goToStep(currentSolutionSteps.length - 1);
+        }
+        
+        if (typeof sincronizarInputsSolucao === 'function') sincronizarInputsSolucao();
+    }
+  
+  // Tecla 'S' ou 's' para Resolver
+  if (e.key === "s" || e.key === "S") {
+    resolver();
+	criarOuAtualizarPainelFullscreen();
+  }
+
+
+  if (e.key === ",") {
+playSolution();
+  }
+  
+    if (e.key === ".") {
+stopSolution();
+  }
+
+
+
+  // DELETE → remove peça selecionada
+  if (e.code === "Delete" && selectedExistingPiece) {
+    removePiece(selectedExistingPiece);
+    deselectExistingPiece();
+    e.preventDefault();
+  }
+  
+    // R → reinicia o jogo
+  if (e.key === "R" || e.key === "r") {
+restorePositions();
+  }
+  
+    if (e.key === "Q" || e.key === "q") {
+	goToStep(0);
+	criarOuAtualizarPainelFullscreen;
+  }
+  
+      if (e.key === "E" || e.key === "e") {
+	goToLastStep();
+	criarOuAtualizarPainelFullscreen;
+  }
+  
+      // R → reinicia o jogo
+  if (e.key === "C" || e.key === "c") {
+clearBoard();
+  }
+  
+  // Verifica se a tecla pressionada é T (case-insensitive)
+    if (e.key === 't' || event.key === 'T') {
+        const checkbox = document.getElementById('check-estilo');
+        
+        // Inverte o estado do checkbox (se tá marcado, desmarca e vice-versa)
+        checkbox.checked = !checkbox.checked;
+        
+        // Chama a função que já criamos para aplicar o visual
+        alternarEstilo();
+    }
+	
+	if (e.key === 'N' || event.key === 'n') {
+		toggleTheme();
+    }
+  
+    if (e.key === "1" || e.key === "numpad_1") {
+		document.querySelector('.red-select')?.click();
+  }
+  
+    if (e.key === "2" || e.key === "numpad_2") {
+		document.querySelector('.blue-select')?.click();
+  }
+
+    if (e.key === "3" || e.key === "numpad_3") {
+		document.querySelector('.green-select')?.click();
+  }
+      if (e.key === "4" || e.key === "numpad_4") {
+		document.querySelector('.yellow-select')?.click();
+  }
+  
+  if (e.key === "5" || e.key === "numpad_5") {
+		document.querySelector('.remove-select')?.click();
+  }
+  
+if (!isGameStarted && !selectedExistingPiece) {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      
+      // Se estiver no 511, volta para o 1, caso contrário soma 1
+      if (currentLevel >= 511) {
+        currentLevel = 1;
+      } else {
+        currentLevel++;
+      }
+      
+      document.getElementById('level-input').value = String(currentLevel).padStart(3, "0");
+      confirmarNivel(); 
+
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      
+      // Se estiver no 1, vai para o 511, caso contrário subtrai 1
+      if (currentLevel <= 1) {
+        currentLevel = 511;
+      } else {
+        currentLevel--;
+      }
+      
+      document.getElementById('level-input').value = String(currentLevel).padStart(3, "0");
+      confirmarNivel();
+    }
+  }
+  
+
+
+  
+});
+
+// Atalhos A e D para navegação na solução
+document.addEventListener("keydown", (e) => {
+    // Não faz nada se o usuário estiver digitando em um input
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+    const key = e.key.toLowerCase();
+    
+    // Verifica se o painel de solução já está aberto
+    const solutionViewer = document.getElementById('solution-viewer');
+    const isSolving = solutionViewer && solutionViewer.style.display !== 'none';
+
+    if (key === "a" || key === "d") {
+        // Se ainda não apertou 'S' (solução não aberta), faz isso agora
+        if (!isSolving) {
+            
+            // Espera a solução ser gerada para poder navegar
+            // (Usamos um intervalo curto para checar se currentSolutionSteps apareceu)
+            const checkSteps = setInterval(() => {
+                if (typeof currentSolutionSteps !== 'undefined' && currentSolutionSteps.length > 0) {
+                    clearInterval(checkSteps);
+                    processarMovimento(key);
+                }
+            }, 50);
+        } else {
+            processarMovimento(key);
+        }
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+    // Impede disparos múltiplos se segurar a tecla
+    if (e.repeat) return;
+
+    const key = e.key.toLowerCase();
+    const isFullscreen = document.body.classList.contains('fullscreen-active');
+    
+    // Pegamos o estado atual da solução
+    const solutionViewer = document.getElementById('solution-viewer');
+    const isSolving = solutionViewer && solutionViewer.style.display !== 'none';
+
+    // Tecla S - Apenas abre/ativa o painel
+    if (key === "s") {
+        if (!isSolving) {
+            resolver();
+            const checkSteps = setInterval(() => {
+                if (typeof currentSolutionSteps !== 'undefined' && currentSolutionSteps.length > 0) {
+                    clearInterval(checkSteps);
+                    if (isFullscreen) criarOuAtualizarPainelFullscreen();
+                }
+            }, 50);
+        } else if (isFullscreen) {
+            criarOuAtualizarPainelFullscreen();
+        }
+        return;
+    }
+
+    // Teclas A e D - Movem 1 por 1
+    if (key === "a" || key === "d") {
+        criarOuAtualizarPainelFullscreen();
+    }
+});
+
+document.getElementById('seletor-fases').addEventListener('change', function() {
+    this.blur(); // Isso "tira o foco" do seletor após você escolher a fase
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Seleciona todos os botões da página
+    const botoes = document.querySelectorAll('button');
+
+    // 2. Desabilita todos e aplica o estilo visual "cinza"
+    botoes.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';      // Deixa semitransparente
+        btn.style.filter = 'grayscale(100%)'; // Força a cor cinza
+        btn.style.cursor = 'not-allowed';     // Muda o cursor do mouse
+    });
+
+    console.log("Botões bloqueados por 10 segundos...");
+
+    // 3. Aguarda 10 segundos (10000ms) para liberar
+    setTimeout(() => {
+        botoes.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.filter = 'none';
+            btn.style.cursor = 'pointer';
+        });
+        console.log("Botões liberados!");
+    }, 4000);
+});
+
+function processarMovimento(key) {
+    // Se a solução não existe, ignora
+    if (typeof currentSolutionSteps === 'undefined' || !currentSolutionSteps) return;
+
+    if (key === "a") {
+        if (currentStepIndex > 0) {
+            currentStepIndex--; // Diminui 1
+            goToStep(currentStepIndex);
+        }
+    } else if (key === "d") {
+        if (currentStepIndex < currentSolutionSteps.length - 1) {
+            currentStepIndex++; // Aumenta 1
+            goToStep(currentStepIndex);
+        }
+    }
+
+    // Sincroniza os visores
+    const normalInput = document.getElementById('step-input');
+    const fsInput = document.getElementById('fs-step-input');
+    
+    if (normalInput) normalInput.value = currentStepIndex;
+    if (fsInput) fsInput.value = currentStepIndex;
+}
+
+
+// Localize seu event listener de keydown existente e adicione/modifique o bloco da tecla 's'
+document.addEventListener("keydown", (e) => {
+    const key = e.key.toLowerCase();
+    const isFullscreen = document.body.classList.contains('fullscreen-active');
+    const solutionViewer = document.getElementById('solution-viewer');
+    const isSolving = solutionViewer && solutionViewer.style.display !== 'none';
+
+    if (key === "s") {
+        if (isFullscreen) {
+            // Se ainda não estiver resolvendo, chama o resolver
+            if (!isSolving) {
+                resolver(); // Função que você já possui no klotski.js
+                
+                // Espera a solução ser gerada para criar o painel
+                const checkSteps = setInterval(() => {
+                    if (typeof currentSolutionSteps !== 'undefined' && currentSolutionSteps.length > 0) {
+                        clearInterval(checkSteps);
+                        criarOuAtualizarPainelFullscreen();
+                    }
+                }, 50);
+            } else {
+                criarOuAtualizarPainelFullscreen();
+            }
+        } else {
+            // Modo normal: apenas chama o resolver padrão
+            resolver();
+        }
+    }
+    
+    // Se você já tem a lógica de 'a' e 'd' para navegar, 
+    // certifique-se de chamar a atualização do input após o movimento.
+    if (key === "a" || key === "d") {
+        if (isSolving) {
+            setTimeout(sincronizarInputsSolucao, 10);
+        }
+    }
+});
+
+function criarOuAtualizarPainelFullscreen() {
+    // Tenta encontrar a info-area que está visível (geralmente a do fullscreen)
+    let infoAreas = document.querySelectorAll('.info-area');
+    let targetArea = null;
+	
+	const totalStepsSpan = document.getElementById('fs-total-steps');
+    const stepInput = document.getElementById('fs-step-input');
+	
+	console.log("Total de passos:", currentSolutionSteps ? currentSolutionSteps.length : 0);
+
+    // Lógica para mostrar 0/0 se não houver solução
+    if (typeof currentSolutionSteps === 'undefined' || !currentSolutionSteps || currentSolutionSteps.length === 0) {
+        if (totalStepsSpan) totalStepsSpan.innerText = "0";
+        if (stepInput) stepInput.value = "0";
+        // Opcional: Esconder botões de avançar/voltar se não houver solução
+        return; 
+    }
+
+    // Procura a info-area que NÃO está com display: none
+    infoAreas.forEach(area => {
+        if (window.getComputedStyle(area).display !== 'none') {
+            targetArea = area;
+        }
+    });
+
+    // Se não achou por visibilidade, tenta pegar a última (comumente a do fullscreen no HTML)
+    if (!targetArea) targetArea = infoAreas[infoAreas.length - 1];
+	
+	targetArea.style.marginTop = "-5px"; 
+    
+    if (!targetArea) {
+        console.error("Não foi possível encontrar a .info-area");
+        return;
+    }
+
+    let panel = document.getElementById('fs-solve-panel');
+    
+    if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'fs-solve-panel';
+		panel.innerHTML = '<button id="fs-btn-prev">&lt;</button><div style="display: flex; align-items: center; gap: 5px;"><input type="number" id="fs-step-input" value="0"><span style="color: #888;">/</span><span id="fs-total-steps">0</span></div><button id="fs-btn-next">&gt;</button>';
+        targetArea.appendChild(panel);
+
+        // Eventos
+
+// Função auxiliar para o comportamento de segurar (spam)
+        const configurarSpam = (id, acao) => {
+            const btn = document.getElementById(id);
+            let intervalId = null;
+            let timeoutId = null;
+
+            const iniciar = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                acao();
+                timeoutId = setTimeout(() => {
+                    intervalId = setInterval(acao, 100);
+                }, 500);
+            };
+
+            const parar = () => {
+                clearTimeout(timeoutId);
+                clearInterval(intervalId);
+            };
+
+            btn.onmousedown = iniciar;
+            btn.onmouseup = parar;
+            btn.onmouseleave = parar;
+            btn.ontouchstart = iniciar;
+            btn.ontouchend = parar;
+        };
+
+        // Evento Voltar
+        configurarSpam('fs-btn-prev', () => {
+            if (currentStepIndex > 0) {
+                goToStep(currentStepIndex - 1);
+                sincronizarInputsSolucao();
+            }
+        });
+
+        // Evento Avançar
+        configurarSpam('fs-btn-next', () => {
+            if (currentSolutionSteps && currentStepIndex < currentSolutionSteps.length - 1) {
+                goToStep(currentStepIndex + 1);
+                sincronizarInputsSolucao();
+            }});
+    }
+
+    // Atualiza os números
+    if (typeof currentSolutionSteps !== 'undefined' && currentSolutionSteps.length > 0) {
+        document.getElementById('fs-total-steps').innerText = currentSolutionSteps.length - 1;
+        document.getElementById('fs-step-input').value = currentStepIndex;
+        panel.style.display = 'flex'; // Garante que está visível
+    }
+}
+
+
+
+    // Inicialização
+    createCells();
+    createSelectablePieces();
+    updateSelectablePieces();
+	
+	// Localize onde estão as configurações do Solution Viewer e adicione:
+const stepInput = document.getElementById('fs-step-input');
+
+  </script>
+</body>
+</html>
