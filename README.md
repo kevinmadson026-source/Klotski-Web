@@ -24,7 +24,7 @@ Existem duas formas de iniciar o projeto:
 * Abra o prompt de comando (CMD) ou terminal na pasta do projeto.
 * Digite o comando: `node server.js`
 
-** ou use o run.bat **
+**Ou use o run.bat.**
 
 Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a porta exibida no terminal).
 
