@@ -1,8 +1,7 @@
-# 🧩 Giiker Super Slide - Klotski Solver & Game
+# 🧩 Giiker Super Slide - Klotski Solver & Game (PT-BR)
+**English and Spanish Translations avaliable, just keep scrolling.**
 
 Este projeto é uma implementação web completa do quebra-cabeça Giiker Super Slide (Klotski), permitindo jogar fases oficiais, criar desafios personalizados e utilizar um resolvedor automático.
-
-**English and Spanish Translations avaliable, just keep scrolling.
 
 teste agora / test now: https://klotski-web.onrender.com
 ---
