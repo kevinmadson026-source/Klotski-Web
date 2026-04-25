@@ -43,6 +43,30 @@ Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a port
 A complete web implementation of the Giiker Super Slide. Includes 511 levels, custom puzzle builder, automatic solver, light/dark modes, and fullscreen support. 
 **To run:** Use `node server.js` or using run.bat
 
+### 🚀 Installation and Execution Guide
+
+#### 1. Installing Node.js
+To run the local server, you need Node.js installed:
+1. Go to the official website: [nodejs.org](https://nodejs.org/).
+2. Download the **LTS** version.
+3. Run the installer and follow the standard steps.
+
+#### 2. How to Run the Site
+* **Via Terminal:** Open the command prompt in the project folder and type: `node server.js`
+* **Using run.bat:** Simply double-click the `run.bat` file provided in the root folder.
+
+After starting, open your browser and go to: `http://localhost:3000`
+
+### ✨ Features
+* **511-Level Selector:** Full library with balanced difficulty progression.
+* **Custom Mode:** Create, play, or solve any Klotski puzzle configuration.
+* **Automatic Solver:** Intelligent algorithm that shows step-by-step solutions.
+* **Fullscreen Mode:** Expand the game for a more immersive experience.
+* **Light/Dark Mode:** Dynamic theme switching.
+* **Multi-language Translation:** Available in English, Portuguese, and Spanish.
+
+---
+
 ### 🇪🇸 Español
 Una implementación web completa de Giiker Super Slide. Incluye 511 niveles, creación de puzzles personalizados, solucionador automático, modo claro/oscuro y pantalla completa.
 **Para ejecutar:** Use `node server.js` o usando run.bat 
