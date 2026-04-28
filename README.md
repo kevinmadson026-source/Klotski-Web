@@ -36,14 +36,18 @@ Após iniciar, abra o seu navegador e acesse: `http://localhost:3000` (ou a port
 
 ---
 
-## ✨ Funcionalidades (Features)
+## ✨ Funcionalidades
 
 * **Seletor de 511 Fases:** Biblioteca completa de níveis oficiais com progressão de dificuldade balanceada.
 * **Modo Customizado:** Liberdade total para **criar, jogar ou resolver** qualquer configuração de puzzle Klotski manualmente.
+* **Aleatorize:** Escolha aleatoriamente uma das 511 fases ou gere uma fase aleatoriamente de todas possiveis.
+* **Modo desafio:**: Se desafie com um cronômetro e veja se pode resolver antes do tempo acabar.
 * **Resolvedor Automático (Solver):** Algoritmo inteligente que calcula e mostra o passo a passo para vencer qualquer fase.
 * **Modo Fullscreen:** Expanda o jogo para preencher a tela inteira para uma experiência mais imersiva.
 * **Modo Claro/Escuro:** Troca dinâmica de temas para melhor conforto visual.
 * **Tradução Multi-idioma:** Interface disponível em **Português, Inglês e Espanhol**.
+
+* **e muito mais!**
 
 ---
 
@@ -72,12 +76,17 @@ To run the local server, you need Node.js installed:
 After starting, open your browser and go to: `http://localhost:3000`
 
 ### ✨ Features
-* **511-Level Selector:** Full library with balanced difficulty progression.
-* **Custom Mode:** Create, play, or solve any Klotski puzzle configuration.
-* **Automatic Solver:** Intelligent algorithm that shows step-by-step solutions.
-* **Fullscreen Mode:** Expand the game for a more immersive experience.
-* **Light/Dark Mode:** Dynamic theme switching.
-* **Multi-language Translation:** Available in English, Portuguese, and Spanish.
+
+* **511-Level Selector:** A complete library of official levels with balanced difficulty progression.
+* **Custom Mode:** Total freedom to **create, play, or solve** any Klotski puzzle configuration manually.
+* **Randomize:** Randomly select one of the 511 levels or generate a random level from all possible ones.
+* **Challenge Mode:** Challenge yourself with a timer and see if you can solve it before time runs out.
+* **Automatic Solver:** Intelligent algorithm that calculates and shows the step-by-step solution to beat any level.
+* **Fullscreen Mode:** Expand the game to fill the entire screen for a more immersive experience.
+* **Light/Dark Mode:** Dynamic theme switching for better visual comfort.
+* **Multi-language Translation:** Interface available in **Portuguese, English, and Spanish**.
+
+* **and much more!**
 
 ---
 
@@ -105,12 +114,16 @@ Para ejecutar el servidor local, necesita tener instalado Node.js:
 Después de iniciar, abra su navegador y acceda a: `http://localhost:3000`
 
 ### ✨ Características
-* **Selector de 511 Niveles:** Biblioteca con progresión de dificultad balanceada.
-* **Modo Personalizado:** Libertad para crear, jugar o resolver cualquier configuración.
-* **Solucionador Automático:** Algoritmo que muestra el paso a paso para la victoria.
-* **Modo Pantalla Completa:** Experiencia inmersiva en pantalla completa.
-* **Modo Claro/Oscuro:** Cambio dinámico de temas.
-* **Traducción Multi-idioma:** Disponible en Español, Inglés y Portugués.
+* **Selector de 511 fases:** Biblioteca completa de niveles oficiales con una progresión de dificultad equilibrada.
+* **Modo personalizado:** Total libertad para **crear, jugar o resolver** manualmente cualquier configuración del rompecabezas Klotski.
+* **Función aleatoria:** Elige al azar uno de los 511 niveles o genera un nivel aleatorio de entre todos los posibles.
+* **Modo desafío:** Ponte a prueba con un cronómetro y comprueba si puedes resolverlo antes de que se acabe el tiempo.
+* **Resolución automática (Solver):** Algoritmo inteligente que calcula y muestra los pasos a seguir para superar cualquier fase.
+* **Modo pantalla completa:** Amplía el juego para ocupar toda la pantalla y disfrutar de una experiencia más inmersiva.
+* **Modo claro/oscuro:** Cambio dinámico de temas para una mayor comodidad visual.
+* **Traducción multilingüe:** Interfaz disponible en **portugués, inglés y español**.
+
+* **¡Y mucho más!**
 
 ---
 
